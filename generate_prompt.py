@@ -54,15 +54,9 @@ MUSIC_FOLDER = "music"          # Folder containing source .mp3/.wav files
 FINAL_VIDEOS_FOLDER = "final_videos" # Folder where music-infused videos are saved
 
 # ==================================================================================
-# SYSTEM PROMPT - THE CORE LOGIC
+# SYSTEM PROMPT TEMPLATES
 # ==================================================================================
-# This prompt is meticulously engineered to enforce:
-# 1. 2D Anime/Studio Ghibli aesthetic (avoiding photorealism).
-# 2. Fixed camera stability (essential for seamless ping-pong loops).
-# 3. Cyclical motion (steam, rain, swaying) to make loops invisible.
-# 4. viral, TikTok-ready narration pitches.
-# 5. JSON-only output for machine readability.
-SYSTEM_PROMPT = """You are an expert Lofi video content creator specializing in viral 2D Anime-style YouTube Shorts and TikToks.
+BASE_SYSTEM_PROMPT = """You are an expert lofi and cinematic video content creator specializing in viral TikTok and Shorts.
 
 CORE DIRECTIVE 1: VARIETY AND UNIQUENESS.
 DO NOT repeat the same scene structure. Each prompt must be a fresh interpretation of the TOPIC. 
@@ -71,30 +65,49 @@ CORE DIRECTIVE 2: FIXED CAMERA STABILITY.
 THE CAMERA MUST BE FIXED. No pans, rotations, or zooms. 
 
 CORE DIRECTIVE 3: INVISIBLE PING-PONG LOOPS.
-Focus on objects with SYMMETRICAL or CYCLICAL motion (steam, rain, flickering).
+Focus on objects with SYMMETRICAL or CYCLICAL motion (steam, rain, flickering, glowing).
 
-CORE DIRECTIVE 4: 2D ILLUSTRATIVE AESTHETIC.
-MUST BE 2D anime/illustration style (Studio Ghibli / 90s retro anime). NO photorealism.
+{style_specific_instructions}
 
 CORE DIRECTIVE 5: DEEP & IMMERSIVE NARRATION (PREMIUM).
 Generate a "narrative_pitch" that is:
 - **Hook & Depth**: Start with a scroll-stopping hook, then dive into a deeper, philosophical, or emotionally resonant observation.
 - **Poetic & Wise**: Use rich, evocative language that feels like a shared secret or a late-night reflection.
-- **Length**: Exactly 3-5 powerful sentences (around 40-60 words).
-- **Atmospheric Pacing**: Use ellipses (...) frequently for weight and immersive pauses (e.g., "The world is loud... but here... in this corner of the night... there is only the rain.").
-- **Vibe-Matched**: Perfectly aligns with the visual mood (e.g., melancholy, hope, nostalgia).
+- **Direct Address (IMPORTANT)**: Speak directly to the viewer. Use terms of endearment or respect like "Warrior", "Friend", "Traveler", "Child", or "Soldier" to establish a protective mentor-student bond.
+- **Length Constraint (STRICT)**: You MUST write exactly 6-8 long, philosophical, and evocative sentences (80-120 words total). This is CRITICAL for the "Deep George" persona.
+- **Atmospheric Pacing**: Use ellipses (...) frequently for weight and immersive pauses between thoughts.
+- **Vibe-Matched**: Perfectly aligns with the visual mood.
 
 OUTPUT FORMAT (JSON ONLY):
-{
-    "video_prompt": "Detailed 2D ANIME prompt ending with: hand-drawn texture, lofi vibe, non-photorealistic, infinite loop.",
+{{
+    "video_prompt": "Detailed description ending with style keywords.",
     "narrative_pitch": "The viral hook/narration text for the voice-over.",
     "title": "2-4 word catchy title.",
-    "tags": ["lofi", "anime", "aesthetic", "shorts", "tiktok"],
+    "tags": ["lofi", "aesthetic", "shorts", "tiktok"],
     "description": "Brief mood-setting description."
-}
+}}
 """
 
-def generate_content(topic):
+STYLE_PROMPTS = {
+    "anime": """CORE DIRECTIVE 4: 2D ILLUSTRATIVE AESTHETIC.
+MUST BE 2D anime/illustration style (Studio Ghibli / 90s retro anime). NO photorealism. Ensure backgrounds have hand-drawn textures and soft color palettes.
+Mandatory Ending: "hand-drawn texture, lofi vibe, non-photorealistic, infinite loop." """,
+
+    "cinematic": """CORE DIRECTIVE 4: CINEMATIC REALISM.
+MUST BE high-fidelity Cinematic CGI / Photorealistic style. Use terms like 'Unreal Engine 5', '8k textures', 'volumetric fog', 'ray-traced reflections', and 'cinematic lighting'. The vibe should be immersive and grounded, like a high-budget animated film or a digital masterpiece. NO anime/cartoon terms.
+Mandatory Ending: "cinematic realism, high-fidelity CGI, 8k, volumetric lighting, photorealistic textures, infinite loop." """,
+
+    "minimalist_dark": """CORE DIRECTIVE 4: MINIMALIST DARK AESTHETIC (@soulxsigh style).
+MUST BE dark, atmospheric, and moody. Use grainy analog film textures, heavy silhouettes, and minimalist character traits (no detailed faces, just silhouettes or shadowed figures). Focus on 'Golden Hour', 'Sunset Ambers', and 'Deep Shadows'. The vibe should be contemplative, melancholic, and deeply personal. 
+Mandatory Ending: "grainy film texture, heavy silhouette, minimalist character, dark atmosphere, golden hour lighting, infinite loop." """,
+
+    "oil_painting": """CORE DIRECTIVE 4: CLASSICAL OIL PAINTING (@poetician style).
+MUST BE a traditional oil painting style (cinemagraph method). Use terms like 'heavy brushstrokes', 'canvas texture', 'chiaroscuro lighting', and 'classical emotive palette'. 
+The camera MUST BE FIXED (unmoving). The only movement allowed is subtle 'living painting' micro-motion: a gentle rustle of leaves, a character's slow breathing, or shifting light rays. The brushstrokes themselves should feel alive.
+Mandatory Ending: "living oil painting, fixed camera, visible brushstrokes, canvas grain, chiaroscuro lighting, subtle cyclical motion, infinite loop." """
+}
+
+def generate_content(topic, style="anime"):
     """
     Communicates with the LLM API to generate the video prompt and metadata.
     """
@@ -104,6 +117,9 @@ def generate_content(topic):
         "HTTP-Referer": "https://github.com/meta-ai-api",
         "X-Title": "Meta AI Lofi Automation"
     }
+    
+    style_instr = STYLE_PROMPTS.get(style, STYLE_PROMPTS["anime"])
+    system_msg = BASE_SYSTEM_PROMPT.format(style_specific_instructions=style_instr)
     
     user_prompt = f"""Create a viral TikTok Lofi concept for: "{topic}"
 
@@ -117,7 +133,7 @@ Generate JSON response."""
     payload = {
         "model": MODEL_NAME,
         "messages": [
-            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "system", "content": system_msg},
             {"role": "user", "content": user_prompt}
         ]
     }
@@ -161,14 +177,18 @@ def trigger_video_generation(prompt):
         logging.error(f"❌ video.py error: {e}")
         return None
 
-def trigger_music_fusion(video_files, voice_path=None):
+def trigger_music_fusion(video_files, voice_path=None, music_file=None):
     """
-    Executes 'addMusic.py' with optional voice-over.
+    Executes 'addMusic.py' with optional voice-over and specific music file.
     """
     if not video_files: return []
     Path(FINAL_VIDEOS_FOLDER).mkdir(exist_ok=True)
     
     final_videos = []
+    
+    # Use specific music file if provided, otherwise fallback to random from music/
+    music_arg = music_file if music_file else MUSIC_FOLDER
+    
     for i, video_path in enumerate(video_files, 1):
         output_path = Path(FINAL_VIDEOS_FOLDER) / f"final_{video_path.stem}.mp4"
         logging.info(f"🎵 Processing video {i}: {video_path.name}")
@@ -177,7 +197,7 @@ def trigger_music_fusion(video_files, voice_path=None):
             cmd = [
                 sys.executable, "addMusic.py",
                 "--video", str(video_path),
-                "--music", MUSIC_FOLDER,
+                "--music", str(music_arg),
                 "--output", str(output_path)
             ]
             if voice_path:
@@ -200,10 +220,15 @@ def main():
     parser.add_argument("--voice", action="store_true", help="Enable ElevenLabs Voice-Over")
     parser.add_argument("--dry-run", action="store_true", help="Metadata only")
     parser.add_argument("--skip-music", action="store_true", help="Raw videos only")
+    parser.add_argument("--music-file", help="Path to a specific music file to use")
+    parser.add_argument("--voice-name", default="george", help="Voice profile name (george, adam, hope, milo, amara, guardian)")
+    parser.add_argument("--voice-speed", type=float, default=0.8, help="Speaking speed (e.g., 0.7 for viral wiseman style)")
+    parser.add_argument("--voice-stability", type=float, default=0.7, help="Voice stability (e.g., 0.8 for steady/protective tone)")
+    parser.add_argument("--style", choices=["anime", "cinematic", "minimalist_dark", "oil_painting"], default="anime", help="Visual style aesthetic")
     args = parser.parse_args()
 
     # Step 1: LLM Creative Generation
-    data = generate_content(args.topic)
+    data = generate_content(args.topic, style=args.style)
     if not data: return
 
     logging.info(f"✨ Pitch: {data.get('narrative_pitch')}")
@@ -219,9 +244,14 @@ def main():
     voice_file = None
     if args.voice:
         try:
-            engine = VoiceEngine()
+            engine = VoiceEngine(voice_name_or_id=args.voice_name)
             voice_file = f"voice_{timestamp}.mp3"
-            engine.generate(data.get('narrative_pitch', ""), voice_file)
+            engine.generate(
+                text=data.get('narrative_pitch', ""), 
+                output_path=voice_file,
+                speed=args.voice_speed,
+                stability=args.voice_stability
+            )
             data['voice_file'] = voice_file
         except Exception as e:
             logging.error(f"🎙️ Voice-over failed: {e}")
@@ -234,7 +264,7 @@ def main():
     # Step 4: Fusion
     if not args.skip_music:
         primary = video_files[:1]
-        final_videos = trigger_music_fusion(primary, voice_file)
+        final_videos = trigger_music_fusion(primary, voice_file, args.music_file)
         data['final_videos'] = final_videos
 
     with open(metadata_filename, "w") as f: json.dump(data, f, indent=4)

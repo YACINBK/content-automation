@@ -1,8 +1,10 @@
 # 🌙 Lofi Video Automation Pipeline
 
-An industrial-grade, automated end-to-end system for generating viral **2D Anime/Studio Ghibli style Lofi videos** for TikTok, YouTube Shorts, and Instagram Reels.
+An industrial-grade, automated end-to-end system for generating viral videos for TikTok, YouTube Shorts, and Instagram Reels.
 
-The system now features **Deep AI Narration** with professional **Audio Ducking** and optimized storage.
+**Two Powerful Pipelines:**
+1. **Lofi Loop Generator**: 2D Anime/Studio Ghibli style seamless looping videos with AI narration
+2. **Cinematic Slideshow**: Line-by-line quote reels with metaphorical imagery and cinematic transitions
 
 ---
 
@@ -106,6 +108,18 @@ We encountered and resolved several critical audio processing issues:
 *   **Dry Run**: Use `--dry-run` to see the generated prompt and narration without spending API credits on video/voice.
 *   **Voice Customization**: Edit `voice_engine.py` to change the default speaker ID or adjust the stability/speed settings.
 *   **n8n Automation**: This pipeline is designed to be triggered via webhooks for 100% hands-free content creation.
+
+---
+
+## 📚 Documentation
+
+### Pipeline-Specific Guides
+- **[Cinematic Slideshow Pipeline](CINEMATIC_SLIDESHOW.md)** - Complete guide for the new line-by-line quote reel generator
+  - Available styles: `minimalist_dark`, `oil_painting`, `nostalgic_oil`
+  - Customization, troubleshooting, and best practices
+
+### Legacy Documentation
+- **Lofi Loop Generator** - See sections above for the original seamless looping pipeline
 
 ---
 
