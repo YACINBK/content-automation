@@ -1,0 +1,201 @@
+{
+  "name": "videos scraping",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -816,
+        336
+      ],
+      "id": "c3fc6464-c626-4fd0-9b34-40d6fdb3d295",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://pixabay.com/api/videos/",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "54573814-2721ff5108e88c5a4f9520ab4"
+            },
+            {
+              "name": "q",
+              "value": "phonk anime"
+            },
+            {
+              "name": "per_page",
+              "value": "40"
+            },
+            {
+              "name": "page",
+              "value": "1"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -480,
+        -16
+      ],
+      "id": "73bfe9e1-bf6c-4763-9325-420ced16ae7c",
+      "name": "Fetch Pixabay Videos"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "hits",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -176,
+        240
+      ],
+      "id": "5b93ceff-546d-4ed3-8a9c-1558b46cc766",
+      "name": "Loop Videos"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.videos.large.url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          },
+          "timeout": 60000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        400,
+        320
+      ],
+      "id": "42052baf-c0ed-4527-846d-4e32485f2b08",
+      "name": "Download Video"
+    },
+    {
+      "parameters": {
+        "name": "={{ $json.id }}_{{ $json.orientation }}.mp4",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $json.targetFolder }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        752,
+        80
+      ],
+      "id": "a59e0369-d471-4cef-b3c5-380356b9be1f",
+      "name": "Upload file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "L3jfWRtR8bMsyB3z",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Get video dimensions\nconst width = $json.videos.large.width;\nconst height = $json.videos.large.height;\n\n// Determine orientation\nlet orientation, folderId;\n\nif (width > height) {\n  orientation = 'horizontal';\n  folderId = '13g3mfxEfavq7kxeOm7F7x86-KEjUFERx'; // ← REPLACE with your horizontal folder ID\n} else {\n  orientation = 'vertical';\n  folderId = '1goh_zRYhfTJh1XcQB-4o71snMaHsU1AB'; // ← REPLACE with your vertical folder ID\n}\n\n// Add orientation info to the item\nreturn {\n  json: {\n    ...$json,\n    orientation: orientation,\n    targetFolder: folderId\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        112,
+        -32
+      ],
+      "id": "9bc1f46c-f686-4649-89ff-71beb9d875ec",
+      "name": "detect orientation"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Fetch Pixabay Videos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Pixabay Videos": {
+      "main": [
+        [
+          {
+            "node": "Loop Videos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Videos": {
+      "main": [
+        [
+          {
+            "node": "detect orientation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Video": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "detect orientation": {
+      "main": [
+        [
+          {
+            "node": "Download Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "9d26865a-6511-465d-b7a3-bc0c7ace7740",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d2c64f26212e6dc802b3151e36b1db2ac8209081668a26fa42bf70f7018e23dc"
+  },
+  "id": "jB5sR6SkRw2SKsas",
+  "tags": []
+}
