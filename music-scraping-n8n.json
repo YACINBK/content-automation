@@ -1,0 +1,177 @@
+{
+  "name": "music scraping",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -368,
+        176
+      ],
+      "id": "ad5c7e04-ba45-4af1-a413-01e299673fd4",
+      "name": "When clicking ‘Execute workflow’",
+      "alwaysOutputData": false,
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "url": "=http://localhost:5000/scrape?q={{ $json.searchQuery }}&max={{ $json.maxResults }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -192,
+        -80
+      ],
+      "id": "cc57594f-a9fe-4d71-b125-efe290e18502",
+      "name": "Call Scraper"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        224,
+        -80
+      ],
+      "id": "629e0054-2941-42ad-b38c-56ddba377224",
+      "name": "Download MP3"
+    },
+    {
+      "parameters": {
+        "name": "={{ $json.filename }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1Bajk-mgM_x_3YmJYiJgRTgvcz0bKHGhL",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        432,
+        -80
+      ],
+      "id": "c33ba45f-37c5-4495-b81d-b20ba0619745",
+      "name": "Upload file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "L3jfWRtR8bMsyB3z",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a039cfe1-4054-4cdc-ae1b-4f4560867897",
+              "name": "searchQuery",
+              "value": "lofi",
+              "type": "string"
+            },
+            {
+              "id": "f3d050be-0398-44dd-b5f2-ca94f3138571",
+              "name": "maxResults",
+              "value": "10",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -448,
+        -32
+      ],
+      "id": "31a4f3f9-58e8-420d-996b-2ed4b3cc0e57",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Scraper": {
+      "main": [
+        [
+          {
+            "node": "Download MP3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download MP3": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Call Scraper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "890c1d82-bd2e-46e7-aaac-76b0693f98d3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d2c64f26212e6dc802b3151e36b1db2ac8209081668a26fa42bf70f7018e23dc"
+  },
+  "id": "HnbIyQaukYjeBuQz",
+  "tags": []
+}

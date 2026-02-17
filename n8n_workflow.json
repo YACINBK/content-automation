@@ -1,0 +1,367 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "34ae07e6-35a3-4747-8347-a9e3d7ef2b0b",
+              "name": "topic",
+              "value": "={{ $json.data.body }}",
+              "type": "string"
+            },
+            {
+              "id": "189c1559-0dae-491d-b444-c6412b774200",
+              "name": "sender",
+              "value": "={{ $json.data.from }}",
+              "type": "string"
+            },
+            {
+              "id": "a77a47f3-9027-48c7-9b31-28bb1b899e06",
+              "name": "timestamp",
+              "value": "={{ $json.data.timestamp }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -352,
+        144
+      ],
+      "id": "cbadf69e-6315-4c5b-ba07-427a7d3389c1",
+      "name": "Extract Topic"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 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"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "HTTP-Referer",
+              "value": "https://github.com/meta-ai-api"
+            },
+            {
+              "name": "X-Title",
+              "value": "Lofi n8n Automation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"openrouter/free\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are an expert Lofi video content creator specializing in viral 2D Anime-style YouTube Shorts and TikToks.\\n\\nCORE DIRECTIVE 1: VARIETY AND UNIQUENESS.\\nDO NOT repeat the same scene structure. Each prompt must be a fresh interpretation of the TOPIC.\\n\\nCORE DIRECTIVE 2: FIXED CAMERA STABILITY.\\nTHE CAMERA MUST BE FIXED. No pans, rotations, or zooms.\\n\\nCORE DIRECTIVE 3: INVISIBLE PING-PONG LOOPS.\\nFocus on objects with SYMMETRICAL or CYCLICAL motion (steam, rain, flickering).\\n\\nCORE DIRECTIVE 4: 2D ILLUSTRATIVE AESTHETIC.\\nMUST BE 2D anime/illustration style (Studio Ghibli / 90s retro anime). NO photorealism.\\n\\nCORE DIRECTIVE 5: DEEP & IMMERSIVE NARRATION (PREMIUM).\\nGenerate a \\\"narrative_pitch\\\" that is:\\n- Hook & Depth: Start with a scroll-stopping hook, then dive into a deeper, philosophical, or emotionally resonant observation.\\n- Poetic & Wise: Use rich, evocative language.\\n- Length: Exactly 3-5 powerful sentences (around 40-60 words).\\n- Atmospheric Pacing: Use ellipses (...) frequently.\\n- Vibe-Matched: Perfectly aligns with the visual mood.\\n\\nOUTPUT FORMAT (JSON ONLY):\\n{\\\"video_prompt\\\": \\\"...\\\", \\\"narrative_pitch\\\": \\\"...\\\", \\\"title\\\": \\\"...\\\", \\\"tags\\\": [...], \\\"description\\\": \\\"...\\\"}\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Create a viral TikTok Lofi concept for: \\\"{{ $node['Extract Topic'].json.topic }}\\\"\\n\\nRequirements:\\n- Visuals must be loop-friendly (forward/reverse).\\n- Narration (narrative_pitch) must be an elite, emotional hook that stops the scroll.\\n- Lighting/Atmosphere must be immersive.\\n\\nGenerate JSON response.\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -64,
+        144
+      ],
+      "id": "532f23fb-418e-473e-a5e0-844a3ef6715d",
+      "name": "OpenRouter LLM Call"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Node: Parse LLM Response\nconst raw = $input.first().json.choices[0].message.content;\nlet clean = raw.trim();\nif (clean.startsWith('```json')) clean = clean.slice(7);\nif (clean.startsWith('```'))    clean = clean.slice(3);\nif (clean.endsWith('```'))      clean = clean.slice(0, -3);\n\nconst data = JSON.parse(clean.trim());\nreturn [{ json: data }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        176,
+        144
+      ],
+      "id": "060c6be7-838b-4519-a1a2-35055a9aa51e",
+      "name": "Parse LLM Response"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.elevenlabs.io/v1/text-to-speech/JBFqnCBsd6RMkjVDRZzb",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "xi-api-key",
+              "value": "=sk_d60c573dcefa956266f76b102fac0bd3cec3534ddf5b8eda"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept",
+              "value": "audio/mpeg"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"text\": \"{{ $json.narrative_pitch }}\",\n  \"model_id\": \"eleven_multilingual_v2\",\n  \"voice_settings\": {\n    \"stability\": 0.7,\n    \"similarity_boost\": 0.75,\n    \"style\": 0.0,\n    \"use_speaker_boost\": true,\n    \"speed\": 0.8\n  }\n}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        544,
+        16
+      ],
+      "id": "2b02a952-7de5-4a7b-a5f4-08c3410b3319",
+      "name": "ElevenLabs Voice Generation"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        864,
+        144
+      ],
+      "id": "6ee24c95-cafe-417a-8e7a-2f873cafae23",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:8000/generate-video",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"prompt\": \"{{ $node['Parse LLM Response'].json.video_prompt }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        544,
+        224
+      ],
+      "id": "11ee32bc-8152-4d68-b1e3-4ec75b6a88a3",
+      "name": "Generate Video"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "com.twilio.messaging.inbound-message.received"
+        ]
+      },
+      "type": "n8n-nodes-base.twilioTrigger",
+      "typeVersion": 1,
+      "position": [
+        -592,
+        144
+      ],
+      "id": "341734e5-f882-49fe-a0d3-5038bfa7aec8",
+      "name": "Twilio Trigger",
+      "webhookId": "35ea5cd8-2d7b-495c-bc23-40e00e474cc0",
+      "credentials": {
+        "twilioApi": {
+          "id": "ctoAcI8f28oOwAfR",
+          "name": "Twilio account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:8000/fuse-video",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "video_path",
+              "value": "={{ $node['Generate Video'].json.video_path }}"
+            },
+            {
+              "name": "output_name",
+              "value": "=final_{{ $node['Extract Topic'].json.timestamp }}.mp4"
+            },
+            {
+              "parameterType": "formBinaryData",
+              "name": "voice_file",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 300000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1072,
+        144
+      ],
+      "id": "3b851313-9340-4866-a85e-8a8f9481ecae",
+      "name": "Fusion"
+    },
+    {
+      "parameters": {
+        "url": "=http://localhost:8000/download/final_{{ $node['Extract Topic'].json.timestamp }}.mp4",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1264,
+        144
+      ],
+      "id": "5adf9759-0ccc-429e-bd46-0f441601b390",
+      "name": "HTTP Request"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Extract Topic": {
+      "main": [
+        [
+          {
+            "node": "OpenRouter LLM Call",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter LLM Call": {
+      "main": [
+        [
+          {
+            "node": "Parse LLM Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse LLM Response": {
+      "main": [
+        [
+          {
+            "node": "ElevenLabs Voice Generation",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Generate Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ElevenLabs Voice Generation": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Fusion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Video": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Twilio Trigger": {
+      "main": [
+        [
+          {
+            "node": "Extract Topic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fusion": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "6b503b7d-f547-48ad-8b4f-ae5f288f6736",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d2c64f26212e6dc802b3151e36b1db2ac8209081668a26fa42bf70f7018e23dc"
+  },
+  "id": "GKoUeKvtEC2iMmSy",
+  "tags": []
+}
