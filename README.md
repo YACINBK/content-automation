@@ -4,7 +4,7 @@ An industrial-grade, automated end-to-end system for generating viral videos for
 
 **Two Powerful Pipelines:**
 1. **Lofi Loop Generator**: 2D Anime/Studio Ghibli style seamless looping videos with AI narration
-2. **Cinematic Slideshow**: Line-by-line quote reels with metaphorical imagery and cinematic transitions
+2. **Cinematic Slideshow**: Line-by-line quote reels or **famous poetry** with metaphorical imagery and cinematic transitions
 
 ---
 

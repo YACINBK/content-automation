@@ -48,6 +48,19 @@ python generate_reel.py --topic "The Beauty of Unspoken Love" --style nostalgic_
 python generate_reel.py --topic "Your Topic" --style minimalist_dark --dry-run
 ```
 
+### 📜 Poetry Mode (Real Famous Poems)
+Generate reels using authentic poems from the curated database:
+
+**Random Love Poem:**
+```bash
+python generate_reel.py --topic "love" --style nostalgic_oil
+```
+
+**Specific Poet (Shakespeare, Rumi, Neruda, etc.):**
+```bash
+python generate_reel.py --topic "love" --poet rumi --style nostalgic_oil
+```
+
 ---
 
 ## 📋 Technical Workflow
@@ -153,6 +166,31 @@ Modify `voice_settings` in `generate_audio_segment()`:
 "voice_settings": {
     "stability": 0.7,        # 0.0-1.0 (higher = more consistent)
     "similarity_boost": 0.8  # 0.0-1.0 (higher = closer to original voice)
+}
+```
+
+---
+
+### Extending the Poetry Database
+To add more poems, edit `poetry_database.py`:
+
+```python
+LOVE_POEMS = {
+    "your_new_author": [
+        {
+            "title": "Poem Title",
+            "author": "Author Name",
+            "year": "1900",
+            "lines": [
+                "Line 1 of the poem...",
+                "Line 2 of the poem..."
+            ],
+            "visual_prompts": [
+                "Metaphorical description for line 1",
+                "Metaphorical description for line 2"
+            ]
+        }
+    ]
 }
 ```
 

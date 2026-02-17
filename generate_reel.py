@@ -70,6 +70,29 @@ Return ONLY a raw JSON list of objects. Do not include markdown formatting.
 ]
 """
 
+
+# Import Poetry Database
+try:
+    import poetry_database
+except ImportError:
+    print("⚠️ poetry_database.py not found. Poetry features disabled.")
+    poetry_database = None
+
+def format_poem_to_script(poem):
+    """Converts a poem from database to the script format expected by the pipeline."""
+    script = []
+    print(f"📜 Selected Poem: '{poem['title']}' by {poem['author']} ({poem.get('year', 'Unknown')})")
+    
+    for i, line in enumerate(poem["lines"]):
+        # Use pre-defined visual prompt if available, otherwise fallback to line text
+        visual_prompt = poem["visual_prompts"][i] if i < len(poem["visual_prompts"]) else f"Metaphoral imagery for: {line}"
+        
+        script.append({
+            "line": line,
+            "image_prompt": visual_prompt
+        })
+    return script
+
 def generate_script(topic):
     """Generates the JSON script via LLM."""
     print(f"🧠 Brainstorming poetic segments for: '{topic}'...")
@@ -140,13 +163,34 @@ def generate_audio_segment(text, index):
 
 def main():
     parser = argparse.ArgumentParser(description="Cinematic Slideshow Generator")
-    parser.add_argument("--topic", required=True, help="Theme of the reel")
-    parser.add_argument("--style", default="minimalist_dark", choices=STYLES.keys(), help="Visual style")
+    parser.add_argument("--topic", required=True, help="Theme of the reel or 'random_poem'")
+    parser.add_argument("--style", default="nostalgic_oil", choices=STYLES.keys(), help="Visual style")
     parser.add_argument("--dry-run", action="store_true", help="Generate script only, skip media gen")
+    parser.add_argument("--poet", help="Specific poet to select from (shakespeare, rumi, etc.)")
     args = parser.parse_args()
 
-    # 1. Generate Script
-    script = generate_script(args.topic)
+    # 1. Generate Script (LLM or Poetry Database)
+    script = None
+    
+    # Check if poetry is requested via --poet or specific topic keywords
+    use_poetry = False
+    if args.poet:
+        use_poetry = True
+    elif args.topic.lower() in ["poetry", "random_poem", "poem"]:
+        use_poetry = True
+        
+    if use_poetry and poetry_database:
+        print(f"📚 Searching Poetry Database (Poet: {args.poet or 'Any'})...")
+        poem = poetry_database.get_random_poem(args.poet)
+        if poem:
+            script = format_poem_to_script(poem)
+        else:
+            print(f"⚠️ No poems found for poet: {args.poet}. Falling back to LLM.")
+            
+    # Fallback to LLM if no script yet
+    if not script:
+        script = generate_script(args.topic)
+        
     if not script:
         return
 
