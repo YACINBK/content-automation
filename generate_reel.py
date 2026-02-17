@@ -26,7 +26,7 @@ load_dotenv()
 
 # Configuration
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY") or "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"
-ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY") or "sk_c60028192e5e47e60329650d4e3e1c05c8f0b1670aa13839"
+ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY") or "sk_d6d698103758535d04ed14661a60afe58e18d2b112130d63"
 VOICE_ID_GEORGE = "JBFqnCBsd6RMkjVDRZzb"  # George's ID
 
 # Style Presets
@@ -277,15 +277,17 @@ def main():
     
     final_clips = []
     
+    
     # We need to crossfade. 
     # Strategy: Sequential clips, but we set the start time of next clip earlier.
     # MoviePy's concatenate_videoclips with padding=-X works best for simple crossfades.
     
-    cf_duration = STYLES[args.style]["crossfade_duration"]
+    # USER REQUEST: Remove fusion/transitions. Use 0.0 for hard cuts.
+    cf_duration = 0.0 # STYLES[args.style]["crossfade_duration"]
     
     for i, seg in enumerate(media_segments):
         audio = AudioFileClip(seg["audio"])
-        duration = audio.duration + 1.5 # Padding for spoken pause
+        duration = audio.duration + 0.5 # Reduced padding for tighter cuts
         
         # Ensure image lasts long enough for crossfades
         # If it's not the first or last, it needs overlap on both sides?
@@ -303,13 +305,13 @@ def main():
         # simpler zoom for v2: use vfx.Resize ?? No, let's keep it simple for now to avoid complexity errors.
         # clip = clip.resized(lambda t: 1.0 + (0.05 * t / img_duration)) 
         
-        # Fade In/Out
-        if i > 0:
-            clip = clip.with_effects([vfx.CrossFadeIn(cf_duration)])
+        # Fade In/Out - DISABLED
+        # if i > 0:
+        #     clip = clip.with_effects([vfx.CrossFadeIn(cf_duration)])
         
         final_clips.append(clip)
         
-    final_video = concatenate_videoclips(final_clips, method="compose", padding=-cf_duration)
+    final_video = concatenate_videoclips(final_clips, method="compose", padding=0)
     
     output_filename = f"final_reel_{int(time.time())}.mp4"
     final_video.write_videofile(output_filename, fps=24, codec="libx264", audio_codec="aac")
