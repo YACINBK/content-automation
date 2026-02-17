@@ -118,6 +118,12 @@ We encountered and resolved several critical audio processing issues:
   - Available styles: `minimalist_dark`, `oil_painting`, `nostalgic_oil`
   - Customization, troubleshooting, and best practices
 
+### Testing & Debugging
+- **[Testing Tools](TESTING.md)** - Standalone Meta AI testing scripts
+  - `test_meta_video.py`: Test video generation with style presets
+  - `diagnose_meta.py`: Cookie validation and diagnostic tool
+  - Cookie management and troubleshooting guide
+
 ### Legacy Documentation
 - **Lofi Loop Generator** - See sections above for the original seamless looping pipeline
 
