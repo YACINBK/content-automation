@@ -1,0 +1,56 @@
+{
+    "project_name": "bloody_mary_v4",
+    "description": "Universal Narration-First Production: Bloody Mary Origins",
+    "settings": {
+        "voice_profile_id": "9fc85831-fc82-44ff-8b66-9363e7df944f",
+        "temperature": 1.1,
+        "base_url": "http://127.0.0.1:17493",
+        "default_gap_ms": 400,
+        "ffmpeg_path": "C:\\ffmpeg\\bin\\ffmpeg.exe",
+        "meta_cookies": {
+            "datr": "PgmbaQbFJmRfqvIDu36nAxGO",
+            "abra_sess": "Fv7XxdWU2sMDFkQYDkxhYWkzcWtFcGtGaGx3FrCl2JkNAA%3D%3D",
+            "ecto_1_sess": "217dc3ff-3a8b-4592-a38d-57730d24958f.v1%3ARN37skWXZBmTnl5tmA3r5TXEKeJCcAVwiZFPgfgc2KYuDyWstpuerTOfoTpyrWLJSsYuWFnz_Bwr80QrPq0FQW--IHhOR_gxYa8zyEWizrtlLLiSsKlSw5xg9WGbhSn3xrzbNSI5-rFqH0VJJ4SByKsks4h1JZrfHtekfYa9fc37yU2Ub5rpxaiA_uB9jTVjo-vDW_BNEOjUh_cq59iDOGBWmj4APhVelk26cM_8102xOfMXmMB5s2HHOyjHvdgj4TPVJFGzxzSyOPbMaFB0KTCo4q8iJypcPhtxufojD2flbfEBnz8JvhLDiPwbxTJS4HOaA2wx_x9igu_1NFSr9-dJHi8xiF97znoS-FTyGzmVvcu0ph2iO_kw8xR9JPmkZsgz-uAvFYUzifjQw8KWdbfV60VCPTTIrT5T-KkEvL317sOj2XqXqsyRgJeOTdgd0RH2mlW40QTrrv-R069XPHh3WtjuNPW1k8U993A-Tn_IaFoH3xCSZyj31lOcBupEPQ%3Aq7b9ksR0JQ5PPJix%3ApK2Xnn2RsLyaR3Ow6wrxDQ.dztY5QiLzs3nK1OnJUBWW0zbKZG0GMKDEfMcaYCWYhU"
+        }
+    },
+    "anchor_block": "hyper-realistic gothic horror animation, Victorian archive interior, central antique gold-framed mirror with cracked glass in mid-frame, flickering amber lantern left-frame, leather-bound books and aged scrolls foreground, low-angle upward camera perspective, blue-gray atmospheric mist and dust motes in the air, deep crimson accent lighting, Tim Burton cinematic style, shallow depth of field, no on-screen text, no people in modern clothing",
+    "visual_prompts": [
+        "A dark Victorian archive at night, an enormous antique mirror on the wall begins to ripple like water",
+        "Ancient parchment documents and royal seals on a desk, a portrait of Queen Mary I glowing with amber light",
+        "A quill pen writing 'MARY' in blood-red ink on a document that is slowly turning to ash",
+        "The central mirror begins to crack in a web-like pattern, crimson light leaking from the fissures",
+        "Extreme close-up on the mirror as a pale hand presses against the glass from the inside",
+        "A cloaked figure desperately stacking heavy books over a glowing document that is bleeding shadows",
+        "The archive room plunging into darkness as the final lantern goes out, mirror glowing in deep crimson"
+    ],
+    "scenes": [
+        {
+            "id": "nar_1",
+            "text": "What if Bloody Mary was not a myth... but a royal cover-up buried for five centuries?"
+        },
+        {
+            "id": "nar_2",
+            "text": "Queen Mary the First. 1553. She burned nearly three hundred people alive."
+        },
+        {
+            "id": "nar_3",
+            "text": "History called her mad. But the documents tell a different story..."
+        },
+        {
+            "id": "nar_4",
+            "text": "She wasn't mad. She was trying to communicate with something on the other side."
+        },
+        {
+            "id": "nar_5",
+            "text": "And it answered. With a reflection that didn't belong to her."
+        },
+        {
+            "id": "nar_6",
+            "text": "The church knew. The crown knew. And they moved quickly to make sure you never would."
+        },
+        {
+            "id": "nar_7",
+            "text": "But one record survived. And tonight... it surfaced in this room. Watch the shadows."
+        }
+    ]
+}

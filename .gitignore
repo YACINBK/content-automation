@@ -10,20 +10,26 @@ venv/
 env/
 
 # Project Outputs
-outputs/video_*.mp4
-outputs/*.mp4
-final_videos/*.mp4
+outputs/
+final_videos/
+production_*/
+shadow_*/
+nature_*/
+*.mp4
+*.mp3
+*.wav
+*.wav.json
+
+# Project Metadata
 metadata_*.json
 meta_raw.json
-voice_*.mp3
-debug_voice.mp3
-test_output.mp4
-result.mp4
-video-*.mp4
+concat*.txt
+*.txt
+!requirements.txt
+!configs/*.json
 
 # Temporary / Samples
 voice_samples/
-voice_samples/*.mp3
 sample_*.mp3
 debug_voice.mp3
 
