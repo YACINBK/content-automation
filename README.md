@@ -19,14 +19,16 @@ Unlike the old manual ways, this engine:
 - **Python 3.10+**
 
 ### 2. Setup
-```bash
-# Install dependencies
-pip install -r requirements.txt
+- **Existing Voicebox Users**: See the [Fast-Track Guide](file:///C:/Users/YACIN/Desktop/test/test/docs/voicebox_setup.md).
+- **New Users**:
+  ```bash
+  # Install dependencies
+  pip install -r requirements.txt
 
-# Create your .env file
-cp .env.example .env
-# Edit .env and paste your Meta AI cookies and Voice ID
-```
+  # Create your .env file
+  cp .env.example .env
+  # Edit .env and paste your Meta AI cookies and Voice ID
+  ```
 
 ### 3. Usage
 Run the engine with a project configuration:

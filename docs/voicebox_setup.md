@@ -4,6 +4,18 @@ This guide provides a complete, one-shot setup for using [voicebox](https://gith
 
 ---
 
+## ⚡ Quick Start for Existing Voicebox Users
+If your friend already has Voicebox running, they can skip the installation and follow these 3 steps:
+
+1.  **Start Voicebox**: Ensure the server is running on port `17493`.
+2.  **Get Profile ID**: Copy the ID of their preferred cloned voice from the Voicebox UI.
+3.  **Config Engine**: Update the `.env` file (created from `.env.example`) with that `DEFAULT_VOICE_ID`.
+
+They are now ready to run:
+`python voicebox_story_engine.py --config configs/bloody_mary_v5.json`
+
+---
+
 ## A) Setup Steps (Windows 11 + Conda)
 
 Execute these steps in strict order to start the backend server.
