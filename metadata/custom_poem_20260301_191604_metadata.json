@@ -1,0 +1,44 @@
+{
+  "poem_title": "She Walks in Beauty",
+  "poet": "Lord Byron",
+  "full_text": "She walks in beauty, like the night.\nOf cloudless climes and starry skies.\nAnd all that’s best of dark and bright.\nMeet in her aspect and her eyes.\nThus mellowed to that tender light.\nWhich heaven to gaudy day denies.",
+  "verses": [
+    "She walks in beauty, like the night.",
+    "Of cloudless climes and starry skies.",
+    "And all that’s best of dark and bright.",
+    "Meet in her aspect and her eyes.",
+    "Thus mellowed to that tender light.",
+    "Which heaven to gaudy day denies."
+  ],
+  "image_prompts": [
+    "A serene woman gliding through moonlit shadows, ethereal night draping her, soft silver light reflecting on a still pond",
+    "Expansive star‑filled heavens over a tranquil desert landscape, with luminous constellations illuminating vast, cloudless horizons",
+    "A harmonious blend of dark and bright elements in a surreal garden, where luminous flowers bloom against a twilight sky, capturing duality",
+    "Close‑up of a woman's eyes mirroring a cosmos of stars and clouds, reflecting both mystery and clarity in a chiaroscuro portrait",
+    "Gentle dawn light bathing a delicate rose garden, the tender glow mellowing the scene into a pastel, intimate tableau",
+    "A stark contrast between regal sunrise and muted moonlit ambience, the bright day being denied by towering night clouds"
+  ],
+  "metadata": {
+    "mood": "Ethereal and contemplative",
+    "color_palette": "Muted earth tones with silver, gold, and soft pastel accents",
+    "time_period": "Early 20th century oil painting style"
+  },
+  "styled_image_prompts": [
+    "A serene woman gliding through moonlit shadows, ethereal night draping her, soft silver light reflecting on a still pond, early century oil painting, soft warm lighting, textured oil paint effect, muted earth tones, classical European illustration, nostalgic mood, detailed brush strokes, museum painting style",
+    "Expansive star‑filled heavens over a tranquil desert landscape, with luminous constellations illuminating vast, cloudless horizons, early century oil painting, soft warm lighting, textured oil paint effect, muted earth tones, classical European illustration, nostalgic mood, detailed brush strokes, museum painting style",
+    "A harmonious blend of dark and bright elements in a surreal garden, where luminous flowers bloom against a twilight sky, capturing duality, early century oil painting, soft warm lighting, textured oil paint effect, muted earth tones, classical European illustration, nostalgic mood, detailed brush strokes, museum painting style",
+    "Close‑up of a woman's eyes mirroring a cosmos of stars and clouds, reflecting both mystery and clarity in a chiaroscuro portrait, early century oil painting, soft warm lighting, textured oil paint effect, muted earth tones, classical European illustration, nostalgic mood, detailed brush strokes, museum painting style",
+    "Gentle dawn light bathing a delicate rose garden, the tender glow mellowing the scene into a pastel, intimate tableau, early century oil painting, soft warm lighting, textured oil paint effect, muted earth tones, classical European illustration, nostalgic mood, detailed brush strokes, museum painting style",
+    "A stark contrast between regal sunrise and muted moonlit ambience, the bright day being denied by towering night clouds, early century oil painting, soft warm lighting, textured oil paint effect, muted earth tones, classical European illustration, nostalgic mood, detailed brush strokes, museum painting style"
+  ],
+  "image_paths": [
+    "outputs\\images\\custom_poem_20260301_191604_20260301_191632_verse_1.jpg",
+    "outputs\\images\\custom_poem_20260301_191604_20260301_191632_verse_2.jpg",
+    "outputs\\images\\custom_poem_20260301_191604_20260301_191632_verse_3.jpg",
+    "outputs\\images\\custom_poem_20260301_191604_20260301_191632_verse_4.jpg",
+    "outputs\\images\\custom_poem_20260301_191604_20260301_191632_verse_5.jpg",
+    "outputs\\images\\custom_poem_20260301_191604_20260301_191632_verse_6.jpg"
+  ],
+  "final_video": "final_videos\\custom_poem_20260301_191604_silent.mp4",
+  "voice_path": null
+}

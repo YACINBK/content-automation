@@ -1,0 +1,56 @@
+{
+  "poem_title": "Shall I Compare Thee to a Summer's Day",
+  "poet": "William Shakespeare",
+  "full_text": "Shall I compare thee to a summer’s day?\nThou art more lovely and more temperate.\nRough winds do shake the darling buds of May.\nAnd summer’s lease hath all too short a date.\nSometime too hot the eye of heaven shines.\nAnd often is his gold complexion dimm'd.\nAnd every fair from fair sometime declines.\nBy chance, or nature’s changing course, untrimm'd.",
+  "verses": [
+    "Shall I compare thee to a summer’s day?",
+    "Thou art more lovely and more temperate.",
+    "Rough winds do shake the darling buds of May.",
+    "And summer’s lease hath all too short a date.",
+    "Sometime too hot the eye of heaven shines.",
+    "And often is his gold complexion dimm'd.",
+    "And every fair from fair sometime declines.",
+    "By chance, or nature’s changing course, untrimm'd."
+  ],
+  "image_prompts": [
+    "A contemplative poet figure standing on a hill, gazing at a beautiful summer landscape with rolling green hills and distant trees, soft morning light illuminating the scene.",
+    "An elegant young person with gentle features and a serene expression, seated in a garden with soft lighting illuminating their face, wearing light fabrics in muted pastel colors.",
+    "Delicate spring blossoms in various stages of being disturbed by strong winds, petals swirling in the air, branches bending in a moment of natural chaos and beauty.",
+    "An antique calendar showing summer months quickly turning to fall, with autumn leaves already starting to appear, symbolizing the fleeting nature of summer's beauty.",
+    "The intense midday sun beating down on a summer landscape, creating harsh shadows and bright highlights on fields and trees, almost overwhelming in its heat and brightness.",
+    "Golden sunlight filtering through wispy clouds, creating dramatic patterns of light and shadow across a landscape, the sun's golden face partially obscured by atmospheric conditions.",
+    "A close-up portrait of a beautiful face with subtle signs of aging, fine lines around eyes and mouth, but still maintaining grace and dignity, soft romantic lighting.",
+    "A wild, untamed meadow with wildflowers in their natural state, untrimmed by human hands, with butterflies and bees, showing the beauty of nature's own design."
+  ],
+  "styled_image_prompts": [
+    "A contemplative poet figure standing on a hill, gazing at a beautiful summer landscape with rolling green hills and distant trees, soft morning light illuminating the scene., romantic oil painting, warm emotional atmosphere, rich crimson and deep gold palette, soft candlelight, lush painterly brushwork, impressionist warmth, museum quality art nouveau style",
+    "An elegant young person with gentle features and a serene expression, seated in a garden with soft lighting illuminating their face, wearing light fabrics in muted pastel colors., romantic oil painting, warm emotional atmosphere, rich crimson and deep gold palette, soft candlelight, lush painterly brushwork, impressionist warmth, museum quality art nouveau style",
+    "Delicate spring blossoms in various stages of being disturbed by strong winds, petals swirling in the air, branches bending in a moment of natural chaos and beauty., romantic oil painting, warm emotional atmosphere, rich crimson and deep gold palette, soft candlelight, lush painterly brushwork, impressionist warmth, museum quality art nouveau style",
+    "An antique calendar showing summer months quickly turning to fall, with autumn leaves already starting to appear, symbolizing the fleeting nature of summer's beauty., romantic oil painting, warm emotional atmosphere, rich crimson and deep gold palette, soft candlelight, lush painterly brushwork, impressionist warmth, museum quality art nouveau style",
+    "The intense midday sun beating down on a summer landscape, creating harsh shadows and bright highlights on fields and trees, almost overwhelming in its heat and brightness., romantic oil painting, warm emotional atmosphere, rich crimson and deep gold palette, soft candlelight, lush painterly brushwork, impressionist warmth, museum quality art nouveau style",
+    "Golden sunlight filtering through wispy clouds, creating dramatic patterns of light and shadow across a landscape, the sun's golden face partially obscured by atmospheric conditions., romantic oil painting, warm emotional atmosphere, rich crimson and deep gold palette, soft candlelight, lush painterly brushwork, impressionist warmth, museum quality art nouveau style",
+    "A close-up portrait of a beautiful face with subtle signs of aging, fine lines around eyes and mouth, but still maintaining grace and dignity, soft romantic lighting., romantic oil painting, warm emotional atmosphere, rich crimson and deep gold palette, soft candlelight, lush painterly brushwork, impressionist warmth, museum quality art nouveau style",
+    "A wild, untamed meadow with wildflowers in their natural state, untrimmed by human hands, with butterflies and bees, showing the beauty of nature's own design., romantic oil painting, warm emotional atmosphere, rich crimson and deep gold palette, soft candlelight, lush painterly brushwork, impressionist warmth, museum quality art nouveau style"
+  ],
+  "image_paths": [
+    "outputs\\images\\custom_poem_20260301_202145_20260301_202343_verse_1.jpg",
+    "outputs\\images\\custom_poem_20260301_202145_20260301_202343_verse_2.jpg",
+    "outputs\\images\\custom_poem_20260301_202145_20260301_202343_verse_3.jpg",
+    "outputs\\images\\custom_poem_20260301_202145_20260301_202343_verse_4.jpg",
+    "outputs\\images\\custom_poem_20260301_202145_20260301_202343_verse_5.jpg",
+    "outputs\\images\\custom_poem_20260301_202145_20260301_202343_verse_6.jpg",
+    "outputs\\images\\custom_poem_20260301_202145_20260301_202343_verse_7.jpg",
+    "outputs\\images\\custom_poem_20260301_202145_20260301_202343_verse_8.jpg"
+  ],
+  "voice_path": "voice_custom_poem_20260301_202145.wav",
+  "verse_durations": [
+    3.256051235465116,
+    3.3395397286821704,
+    3.756982194767442,
+    3.756982194767442,
+    3.506516715116279,
+    3.3395397286821704,
+    3.5900052083333334,
+    4.174424660852713
+  ]
+}

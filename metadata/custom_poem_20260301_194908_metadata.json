@@ -1,0 +1,51 @@
+{
+  "poem_title": "Ethereal Hues",
+  "poet": "Rumi",
+  "full_text": "She walks in beauty, like the night.\nOf cloudless climes and starry skies.\nAnd all that's best of dark and bright.\nMeet in her aspect and her eyes.\nThus mellowed to that tender light.\nWhich heaven to gaudy day denies.",
+  "verses": [
+    "She walks in beauty, like the night.",
+    "Of cloudless climes and starry skies.",
+    "And all that's best of dark and bright.",
+    "Meet in her aspect and her eyes.",
+    "Thus mellowed to that tender light.",
+    "Which heaven to gaudy day denies."
+  ],
+  "image_prompts": [
+    "A woman walks through moonlit wheat under soft glow.",
+    "Twilight peaks shimmering under celestial dust.",
+    "Silhouetted figure beneath starry dome.",
+    "Reflections in ancient mirror still.",
+    "Golden hour casting ribbons of light.",
+    "Ethereal echoes in hollow chamber."
+  ],
+  "metadata": {
+    "mood": "Meditative yearning",
+    "color_palette": "Midnight blues and amber twilight",
+    "time_period": "Modern Contemplation"
+  },
+  "styled_image_prompts": [
+    "A woman walks through moonlit wheat under soft glow., romantic oil painting, warm emotional atmosphere, rich crimson and deep gold palette, soft candlelight, lush painterly brushwork, impressionist warmth, museum quality art nouveau style",
+    "Twilight peaks shimmering under celestial dust., romantic oil painting, warm emotional atmosphere, rich crimson and deep gold palette, soft candlelight, lush painterly brushwork, impressionist warmth, museum quality art nouveau style",
+    "Silhouetted figure beneath starry dome., romantic oil painting, warm emotional atmosphere, rich crimson and deep gold palette, soft candlelight, lush painterly brushwork, impressionist warmth, museum quality art nouveau style",
+    "Reflections in ancient mirror still., romantic oil painting, warm emotional atmosphere, rich crimson and deep gold palette, soft candlelight, lush painterly brushwork, impressionist warmth, museum quality art nouveau style",
+    "Golden hour casting ribbons of light., romantic oil painting, warm emotional atmosphere, rich crimson and deep gold palette, soft candlelight, lush painterly brushwork, impressionist warmth, museum quality art nouveau style",
+    "Ethereal echoes in hollow chamber., romantic oil painting, warm emotional atmosphere, rich crimson and deep gold palette, soft candlelight, lush painterly brushwork, impressionist warmth, museum quality art nouveau style"
+  ],
+  "image_paths": [
+    "outputs\\images\\custom_poem_20260301_194908_20260301_194927_verse_1.jpg",
+    "outputs\\images\\custom_poem_20260301_194908_20260301_194927_verse_2.jpg",
+    "outputs\\images\\custom_poem_20260301_194908_20260301_194927_verse_3.jpg",
+    "outputs\\images\\custom_poem_20260301_194908_20260301_194927_verse_4.jpg",
+    "outputs\\images\\custom_poem_20260301_194908_20260301_194927_verse_5.jpg",
+    "outputs\\images\\custom_poem_20260301_194908_20260301_194927_verse_6.jpg"
+  ],
+  "voice_path": "voice_custom_poem_20260301_194908.wav",
+  "verse_durations": [
+    2.4860377358490564,
+    2.5550943396226415,
+    2.6932075471698114,
+    2.209811320754717,
+    2.4169811320754717,
+    2.278867924528302
+  ]
+}

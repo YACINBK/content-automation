@@ -1,0 +1,34 @@
+# Secrets
+.env
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+
+# Project Outputs
+outputs/video_*.mp4
+outputs/*.mp4
+final_videos/*.mp4
+metadata_*.json
+meta_raw.json
+voice_*.mp3
+debug_voice.mp3
+test_output.mp4
+result.mp4
+video-*.mp4
+
+# Temporary / Samples
+voice_samples/
+voice_samples/*.mp3
+sample_*.mp3
+debug_voice.mp3
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo

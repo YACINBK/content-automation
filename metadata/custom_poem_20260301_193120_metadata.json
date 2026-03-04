@@ -1,0 +1,39 @@
+{
+  "poem_title": "She Walks in Beauty",
+  "poet": "Lord Byron",
+  "full_text": "She walks in beauty, like the night.\nOf cloudless climes and starry skies.\nAnd all that’s best of dark and bright.\nMeet in her aspect and her eyes.\nThus mellowed to that tender light.\nWhich heaven to gaudy day denies.",
+  "verses": [
+    "She walks in beauty, like the night.",
+    "Of cloudless climes and starry skies.",
+    "And all that’s best of dark and bright.",
+    "Meet in her aspect and her eyes.",
+    "Thus mellowed to that tender light.",
+    "Which heaven to gaudy day denies."
+  ],
+  "image_prompts": [
+    "A solitary woman strolling beneath a twilight sky painted in indigo and gold, her silhouette outlined by faint stars",
+    "A vast meadow under an impossibly clear heavenscape, where constellations shimmer above rolling emerald hills",
+    "A luminous clearing where shadowed trees merge with glowing wildflowers at the edges of dusk",
+    "Her eyes reflecting a cosmic fusion of celestial constellations and terrestrial moonlight shimmering across her lashes",
+    "A lone candle flame hovering amidst swirling twilight petals, casting honey-toned light on a wooden windowpane",
+    "A cathedral stained-glass rose window fractured into prismatic shadows that wouldn't fit in the day's harsh sunlight"
+  ],
+  "styled_image_prompts": [
+    "A solitary woman strolling beneath a twilight sky painted in indigo and gold, her silhouette outlined by faint stars, early century oil painting, soft warm lighting, textured oil paint effect, muted earth tones, classical European illustration, nostalgic mood, detailed brush strokes, museum painting style",
+    "A vast meadow under an impossibly clear heavenscape, where constellations shimmer above rolling emerald hills, early century oil painting, soft warm lighting, textured oil paint effect, muted earth tones, classical European illustration, nostalgic mood, detailed brush strokes, museum painting style",
+    "A luminous clearing where shadowed trees merge with glowing wildflowers at the edges of dusk, early century oil painting, soft warm lighting, textured oil paint effect, muted earth tones, classical European illustration, nostalgic mood, detailed brush strokes, museum painting style",
+    "Her eyes reflecting a cosmic fusion of celestial constellations and terrestrial moonlight shimmering across her lashes, early century oil painting, soft warm lighting, textured oil paint effect, muted earth tones, classical European illustration, nostalgic mood, detailed brush strokes, museum painting style",
+    "A lone candle flame hovering amidst swirling twilight petals, casting honey-toned light on a wooden windowpane, early century oil painting, soft warm lighting, textured oil paint effect, muted earth tones, classical European illustration, nostalgic mood, detailed brush strokes, museum painting style",
+    "A cathedral stained-glass rose window fractured into prismatic shadows that wouldn't fit in the day's harsh sunlight, early century oil painting, soft warm lighting, textured oil paint effect, muted earth tones, classical European illustration, nostalgic mood, detailed brush strokes, museum painting style"
+  ],
+  "image_paths": [
+    "outputs\\images\\custom_poem_20260301_193120_20260301_193129_verse_1.jpg",
+    "outputs\\images\\custom_poem_20260301_193120_20260301_193129_verse_2.jpg",
+    "outputs\\images\\custom_poem_20260301_193120_20260301_193129_verse_3.jpg",
+    "outputs\\images\\custom_poem_20260301_193120_20260301_193129_verse_4.jpg",
+    "outputs\\images\\custom_poem_20260301_193120_20260301_193129_verse_5.jpg",
+    "outputs\\images\\custom_poem_20260301_193120_20260301_193129_verse_6.jpg"
+  ],
+  "final_video": "final_videos\\custom_poem_20260301_193120_silent.mp4",
+  "voice_path": null
+}

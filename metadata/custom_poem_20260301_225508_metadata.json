@@ -1,0 +1,56 @@
+{
+  "poem_title": "Wild Nights",
+  "poet": "Emily Dickinson",
+  "full_text": "Wild nights - Wild nights!\nWere I with thee.\nWild nights should be.\nOur luxury!\nFutile - the winds.\nTo a Heart in port.\nDone with the Compass.\nDone with the Chart!",
+  "verses": [
+    "Wild nights - Wild nights!",
+    "Were I with thee.",
+    "Wild nights should be.",
+    "Our luxury!",
+    "Futile - the winds.",
+    "To a Heart in port.",
+    "Done with the Compass.",
+    "Done with the Chart!"
+  ],
+  "image_prompts": [
+    "A stormy night with towering trees swaying violently under a moonlit sky, capturing the chaos of 'Wild nights'.",
+    "A lone figure under a tree, reaching toward another in the distance, emphasizing yearning and intimacy.",
+    "A serene yet untamed forest at night, with glowing fireflies and a sense of wild beauty.",
+    "A cozy cabin surrounded by wilderness, with warm golden light spilling out to symbolize 'Our luxury'.",
+    "A person struggling against a fierce wind, their face showing despair as the storm rages.",
+    "A heart-shaped ship anchored in a calm harbor at dawn, with a lone figure gazing at the horizon.",
+    "A sailor at sea with a broken compass, the night sky above reflecting confusion and futility.",
+    "An old, unraveled map scattered in the dark, with a single light shining on a heart-shaped mark."
+  ],
+  "styled_image_prompts": [
+    "A stormy night with towering trees swaying violently under a moonlit sky, capturing the chaos of 'Wild nights'., romantic oil painting, warm emotional atmosphere, rich crimson and deep gold palette, soft candlelight, lush painterly brushwork, impressionist warmth, museum quality art nouveau style",
+    "A lone figure under a tree, reaching toward another in the distance, emphasizing yearning and intimacy., romantic oil painting, warm emotional atmosphere, rich crimson and deep gold palette, soft candlelight, lush painterly brushwork, impressionist warmth, museum quality art nouveau style",
+    "A serene yet untamed forest at night, with glowing fireflies and a sense of wild beauty., romantic oil painting, warm emotional atmosphere, rich crimson and deep gold palette, soft candlelight, lush painterly brushwork, impressionist warmth, museum quality art nouveau style",
+    "A cozy cabin surrounded by wilderness, with warm golden light spilling out to symbolize 'Our luxury'., romantic oil painting, warm emotional atmosphere, rich crimson and deep gold palette, soft candlelight, lush painterly brushwork, impressionist warmth, museum quality art nouveau style",
+    "A person struggling against a fierce wind, their face showing despair as the storm rages., romantic oil painting, warm emotional atmosphere, rich crimson and deep gold palette, soft candlelight, lush painterly brushwork, impressionist warmth, museum quality art nouveau style",
+    "A heart-shaped ship anchored in a calm harbor at dawn, with a lone figure gazing at the horizon., romantic oil painting, warm emotional atmosphere, rich crimson and deep gold palette, soft candlelight, lush painterly brushwork, impressionist warmth, museum quality art nouveau style",
+    "A sailor at sea with a broken compass, the night sky above reflecting confusion and futility., romantic oil painting, warm emotional atmosphere, rich crimson and deep gold palette, soft candlelight, lush painterly brushwork, impressionist warmth, museum quality art nouveau style",
+    "An old, unraveled map scattered in the dark, with a single light shining on a heart-shaped mark., romantic oil painting, warm emotional atmosphere, rich crimson and deep gold palette, soft candlelight, lush painterly brushwork, impressionist warmth, museum quality art nouveau style"
+  ],
+  "image_paths": [
+    "outputs\\images\\custom_poem_20260301_225508_20260301_225537_verse_1.jpg",
+    "outputs\\images\\custom_poem_20260301_225508_20260301_225537_verse_2.jpg",
+    "outputs\\images\\custom_poem_20260301_225508_20260301_225537_verse_3.jpg",
+    "outputs\\images\\custom_poem_20260301_225508_20260301_225537_verse_4.jpg",
+    "outputs\\images\\custom_poem_20260301_225508_20260301_225537_verse_5.jpg",
+    "outputs\\images\\custom_poem_20260301_225508_20260301_225537_verse_6.jpg",
+    "outputs\\images\\custom_poem_20260301_225508_20260301_225537_verse_7.jpg",
+    "outputs\\images\\custom_poem_20260301_225508_20260301_225537_verse_8.jpg"
+  ],
+  "voice_path": "voice_custom_poem_20260301_225508.wav",
+  "verse_durations": [
+    2.213333333333333,
+    1.4471794871794872,
+    1.8728205128205127,
+    0.9364102564102563,
+    1.6174358974358973,
+    1.6174358974358973,
+    1.8728205128205127,
+    1.7025641025641023
+  ]
+}
