@@ -1,0 +1,24 @@
+{
+    "title": "The Outlaw's Telephobia",
+    "narrative_script": [
+        "Anomaly Log 007. The Subject is a Wild West Gunslinger, currently staring at a smartphone, paralyzed by making a live phone call. Biometrics indicate severe [anxiety].",
+        "Vocal cords show severe atrophy. They survived high-noon duels, but their nervous system is being [weaponized] by a glowing rectangle.",
+        "Ancient biology is entirely incompatible with [weaponized] Silicon Valley code. The Subject is performing unpaid data entry for an [algorithm].",
+        "Willpower cannot defeat a supercomputer. A structural [override] is required.",
+        "To quarantine the code and restore historical dopamine baselines, the Extraction [Protocol] is in the bio."
+    ],
+    "image_prompts": [
+        "Imagine a video of a hardened Wild West gunslinger in a dusty saloon, holstered revolver on thigh, staring at a glowing smartphone on a scarred wooden table, index finger trembling over the call button, the screen displaying a contact named 'Dentist', [weaponized] tension visible in jaw muscles, [dopamine] levels plummeting, drawn in the style of a vintage 1980s scientific engineering schematic, retro-clinical aesthetic. Shot on 35mm film, macro photography, shallow depth of field. Grainy film texture, chromatic aberration, stark off-white minimalist background, muted colors with a single toxic neon accent color, highly detailed technical illustration, classified document vibe, vertical 9:16 aspect ratio.",
+        "Imagine a video of a translucent cross-section of the gunslinger's throat and brain, showing atrophied vocal cords and darkened neural pathways, a glowing smartphone emitting toxic neon code into the auditory cortex, [weaponized] interference patterns visible, [algorithm] data streams corrupting synapses, drawn in the style of a vintage 1980s scientific engineering schematic, retro-clinical aesthetic. Shot on 35mm film, macro photography, shallow depth of field. Grainy film texture, chromatic aberration, stark off-white minimalist background, muted colors with a single toxic neon accent color, highly detailed technical illustration, classified document vibe, vertical 9:16 aspect ratio.",
+        "Imagine a video of an hourglass forged from spent bullet casings, sand replaced by endless scrolling social media feeds, the gunslinger's elongated shadow cast across a barren desert as time drains, [weaponized] algorithmic glow illuminating the grains, [dopamine] depletion visible as fading light, drawn in the style of a vintage 1980s scientific engineering schematic, retro-clinical aesthetic. Shot on 35mm film, macro photography, shallow depth of field. Grainy film texture, chromatic aberration, stark off-white minimalist background, muted colors with a single toxic neon accent color, highly detailed technical illustration, classified document vibe, vertical 9:16 aspect ratio.",
+        "Imagine a video of a clean blueprint overlay of a steel revolver's internal mechanism, gears labeled 'Override Circuit' and 'Neural Reset', copper pathways highlighted in toxic neon, [weaponized] flow diagrams annotating each component, [override] signal highlighted, drawn in the style of a vintage 1980s scientific engineering schematic, retro-clinical aesthetic. Shot on 35mm film, macro photography, shallow depth of field. Grainy film texture, chromatic aberration, stark off-white minimalist background, muted colors with a single toxic neon accent color, highly detailed technical illustration, classified document vibe, vertical 9:16 aspect ratio.",
+        "Imagine a video of a sleek minimal digital folder icon floating in midair, label 'Extraction Protocol' etched in crisp lines, a subtle neon green pulse emanating from its edges, [weaponized] code contained within, [Protocol] activation ready, drawn in the style of a vintage 1980s scientific engineering schematic, retro-clinical aesthetic. Shot on 35mm film, macro photography, shallow depth of field. Grainy film texture, chromatic aberration, stark off-white minimalist background, muted colors with a single toxic neon accent color, highly detailed technical illustration, classified document vibe, vertical 9:16 aspect ratio."
+    ],
+    "sfx_prompts": [
+        "Heavy mechanical clack, medical monitor flatline",
+        "Low resonant hum, distant revolver cocking",
+        "Soft ticking of hourglass, faint digital notification ping",
+        "Precise mechanical whir, subtle static discharge",
+        "Clean digital chime, soft ambient hum"
+    ]
+}

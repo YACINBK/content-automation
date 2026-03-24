@@ -1,0 +1,24 @@
+{
+    "title": "KGB Spy Read Receipt Anomaly",
+    "narrative_script": [
+        "Anomaly Log 404. The Subject is a 1960s KGB Spy, currently experiencing a read receipt delay on a secure communique. Biometric data indicate severe signal paralysis.",
+        "Neural pathways show cortical overload. They survived ideological purges, but their nervous system is being hijacked by a glowing rectangle, overwhelming neuro-plasticity.",
+        "Ancient biology is entirely incompatible with [weaponized] Silicon Valley code. The Subject is performing unpaid data entry for an [algorithm].",
+        "Willpower cannot defeat a supercomputer. A structural [override] is required for [containment] of the signal leak.",
+        "To quarantine the code and restore historical [baseline] dopamine, the Extraction [Protocol] is in the bio."
+    ],
+    "image_prompts": [
+        "Imagine a video of a stern 1960s KGB spy in a trench coat, standing under a dim lamppost, glancing at a vintage rotary phone that displays a glowing [Read] [delay] timestamp on a modern smartphone screen hovering beside him, drawn in the style of a vintage 1980s scientific engineering schematic, retro-clinical aesthetic. Shot on 35mm film, macro photography, shallow depth of field. Grainy film texture, chromatic aberration, stark off-white minimalist background, muted colors with a single toxic neon accent color, highly detailed technical illustration, classified document vibe, vertical 9:16 aspect ratio.",
+        "Imagine a video of a cross-sectional diagram showing the spy's brain and spinal cord, with neural pathways rendered as copper wires, overlaid with a pulsating red rectangle representing a smartphone screen, highlighting [neuro-plasticity] overload and [hijacked] signal flow, drawn in the style of a vintage 1980s scientific engineering schematic, retro-clinical aesthetic. Shot on 35mm film, macro photography, shallow depth of field. Grainy film texture, chromatic aberration, stark off-white minimalist background, muted colors with a single toxic neon accent color, highly detailed technical illustration, classified document vibe, vertical 9:16 aspect ratio.",
+        "Imagine a video of an hourglass made of cracked Soviet concrete, sand replaced by falling lines of green [weaponized] code, depicting the loss of operational [algorithm] time, drawn in the style of a vintage 1980s scientific engineering schematic, retro-clinical aesthetic. Shot on 35mm film, macro photography, shallow depth of field. Grainy film texture, chromatic aberration, stark off-white minimalist background, muted colors with a single toxic neon accent color, highly detailed technical illustration, classified document vibe, vertical 9:16 aspect ratio.",
+        "Imagine a video of a minimalist blueprint showing a reinforced steel vault labeled 'Neural Core', with flashing [override] circuits and [containment] seals, drawn in the style of a vintage 1980s scientific engineering schematic, retro-clinical aesthetic. Shot on 35mm film, macro photography, shallow depth of field. Grainy film texture, chromatic aberration, stark off-white minimalist background, muted colors with a single toxic neon accent color, highly detailed technical illustration, classified document vibe, vertical 9:16 aspect ratio.",
+        "Imagine a video of a floating, translucent folder icon with a minimalist UI, displaying a shield symbol and the label 'Extraction [Protocol]' to restore [baseline] dopamine levels, drawn in the style of a vintage 1980s scientific engineering schematic, retro-clinical aesthetic. Shot on 35mm film, macro photography, shallow depth of field. Grainy film texture, chromatic aberration, stark off-white minimalist background, muted colors with a single toxic neon accent color, highly detailed technical illustration, classified document vibe, vertical 9:16 aspect ratio."
+    ],
+    "sfx_prompts": [
+        "Heavy mechanical clack, medical monitor flatline",
+        "Low analog hum intertwined with glitching digital buzz",
+        "Slow metallic hourglass tick accompanied by soft data stream whoosh",
+        "Soft relay click followed by a faint containment seal hiss",
+        "Gentle digital chime concluding with a secure lock click"
+    ]
+}

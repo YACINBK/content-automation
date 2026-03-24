@@ -1,0 +1,24 @@
+{
+    "title": "TheGladiator's Ghosting Anomaly",
+    "narrative_script": [
+        "Anomaly Log 010. The Subject is a Roman Gladiator, currently refreshing a dating app after a match. Biometrics indicate severe [dopamine] crash.",
+        "Adrenaline pathways misfire. They survived the Colosseum, but their nervous system is being [weaponized] by a glowing rectangle.",
+        "Ancient biology is entirely incompatible with [weaponized] Silicon Valley code. The Subject is performing unpaid data entry for an [algorithm].",
+        "Willpower cannot defeat a supercomputer. A structural [override] is required.",
+        "To quarantine the code and restore historical dopamine baselines, the Extraction [Protocol] is in the bio."
+    ],
+    "image_prompts": [
+        "Imagine a video of a Roman gladiator in full bronze armor standing inside the Colosseum arena, his gaze fixed on a floating holographic dating app interface showing a swipe left, his shoulders slumped, the arena lights dim, a single toxic neon green line tracing his jawline, drawn in the style of a vintage 1980s scientific engineering schematic, retro-clinical aesthetic. Shot on 35mm film, macro photography, shallow depth of field. Grainy film texture, chromatic aberration, stark off-white minimalist background, muted colors with a single toxic neon accent color, highly detailed technical illustration, classified document vibe, vertical 9:16 aspect ratio.",
+        "Imagine a video of a detailed anatomical cross-section of a gladiator's torso, revealing the heart and brain overlaid with cascading red notification symbols and a glowing smartphone screen emitting pulsing lines, drawn in the style of a vintage 1980s scientific engineering schematic, retro-clinical aesthetic. Shot on 35mm film, macro photography, shallow depth of field. Grainy film texture, chromatic aberration, stark off-white minimalist background, muted colors with a single toxic neon accent color, highly detailed technical illustration, classified document vibe, vertical 9:16 aspect ratio.",
+        "Imagine a video of an hourglass where the upper chamber contains sand and the lower chamber contains pixelated hearts dissolving into static, a faint neon green outline tracing the glass, drawn in the style of a vintage 1980s scientific engineering schematic, retro-clinical aesthetic. Shot on 35mm film, macro photography, shallow depth of field. Grainy film texture, chromatic aberration, stark off-white minimalist background, muted colors with a single toxic neon accent color, highly detailed technical illustration, classified document vibe, vertical 9:16 aspect ratio.",
+        "Imagine a video of a blueprint diagram of a spinal column represented as a series of interlocking steel beams, with a highlighted override switch glowing neon green, drawn in the style of a vintage 1980s scientific engineering schematic, retro-clinical aesthetic. Shot on 35mm film, macro photography, shallow depth of field. Grainy film texture, chromatic aberration, stark off-white minimalist background, muted colors with a single toxic neon accent color, highly detailed technical illustration, classified document vibe, vertical 9:16 aspect ratio.",
+        "Imagine a video of a floating minimalist folder icon with a subtle neon green glow, surrounded by faint circuit lines, drawn in the style of a vintage 1980s scientific engineering schematic, retro-clinical aesthetic. Shot on 35mm film, macro photography, shallow depth of field. Grainy film texture, chromatic aberration, stark off-white minimalist background, muted colors with a single toxic neon accent color, highly detailed technical illustration, classified document vibe, vertical 9:16 aspect ratio."
+    ],
+    "sfx_prompts": [
+        "Heavy mechanical clack, medical monitor flatline",
+        "Distant crowd roar fading into a sharp notification ping",
+        "Steady ticking clock amplified by low digital hum",
+        "Low resonant hum building tension",
+        "Soft chime indicating successful extraction"
+    ]
+}

@@ -1,0 +1,24 @@
+{
+    "title": "The Alchemist's Casino",
+    "narrative_script": [
+        "Anomaly Log 009. The Subject is a Medieval Alchemist, currently performing pull-to-refresh on a glowing rectangle. Biometrics indicate extreme [dopamine] surge.",
+        "He sought the Philosopher's Stone, but his cortex is being [weaponized] by variable-ratio reward code.",
+        "Ancient transmutation rituals are obsolete; the Subject is now performing unpaid data labor for an [algorithm].",
+        "Willpower cannot override a supercomputer. A structural [override] is required.",
+        "To quarantine the code and restore historical dopamine baselines, the Extraction [Protocol] is in the bio."
+    ],
+    "image_prompts": [
+        "Imagine a video of a medieval alchemist in a stone laboratory, wearing a leather apron, pulling down on a smartphone screen to trigger pull-to-refresh, with lead ingots on the table transforming into glowing gold coins on the display, drawn in the style of a vintage 1980s scientific engineering schematic, retro-clinical aesthetic. Shot on 35mm film, macro photography, shallow depth of field. Grainy film texture, chromatic aberration, stark off-white minimalist background, muted colors with a single toxic neon accent color, highly detailed technical illustration, classified document vibe, vertical 9:16 aspect ratio.",
+        "Imagine a video of a cross-sectional diagram of the alchemist's head, showing brain tissue rendered as brass gears and lead filaments, with a glowing smartphone rectangle overlay emitting pulsing lines, drawn in the style of a vintage 1980s scientific engineering schematic, retro-clinical aesthetic. Shot on 35mm film, macro photography, shallow depth of field. Grainy film texture, chromatic aberration, stark off-white minimalist background, muted colors with a single toxic neon accent color, highly detailed technical illustration, classified document vibe, vertical 9:16 aspect ratio.",
+        "Imagine a video of an hourglass made of lead glass, where the falling sand consists of tiny smartphone icons scrolling upward, symbolizing time sucked into the feed, drawn in the style of a vintage 1980s scientific engineering schematic, retro-clinical aesthetic. Shot on 35mm film, macro photography, shallow depth of field. Grainy film texture, chromatic aberration, stark off-white minimalist background, muted colors with a single toxic neon accent color, highly detailed technical illustration, classified document vibe, vertical 9:16 aspect ratio.",
+        "Imagine a video of a clean blueprint showing the alchemist's neural core as a lattice of copper traces, with a highlighted override switch labeled 'EXTRACT', drawn in the style of a vintage 1980s scientific engineering schematic, retro-clinical aesthetic. Shot on 35mm film, macro photography, shallow depth of field. Grainy film texture, chromatic aberration, stark off-white minimalist background, muted colors with a single toxic neon accent color, highly detailed technical illustration, classified document vibe, vertical 9:16 aspect ratio.",
+        "Imagine a video of a sleek minimalist digital folder icon floating in midair, labeled 'EXTRACTION PROTOCOL' in crisp sans-serif, with subtle circuit lines emanating, drawn in the style of a vintage 1980s scientific engineering schematic, retro-clinical aesthetic. Shot on 35mm film, macro photography, shallow depth of field. Grainy film texture, chromatic aberration, stark off-white minimalist background, muted colors with a single toxic neon accent color, highly detailed technical illustration, classified document vibe, vertical 9:16 aspect ratio."
+    ],
+    "sfx_prompts": [
+        "Heavy mechanical clack of a typewriter mixed with a soft digital ping.",
+        "Low hum of a cathode-ray tube rising into a sharp electronic whine.",
+        "Sand trickling sound transformed into rapid UI swipe whooshes.",
+        "Deep resonant pulse like a heartbeat monitor flatlining then a click.",
+        "Clean digital chime followed by a soft vacuum seal."
+    ]
+}
