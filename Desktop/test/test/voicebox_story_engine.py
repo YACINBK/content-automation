@@ -8,6 +8,7 @@ import time
 import sys
 from datetime import datetime
 from dotenv import load_dotenv
+from audio_fx_engine import process_audio as apply_audio_fx
 
 load_dotenv(override=True)
 
@@ -45,6 +46,11 @@ class VoiceboxStoryEngine:
             # Resume Check
             if not self.force and os.path.exists(filename) and os.path.getsize(filename) > 0:
                 print(f"   ⏩ Skipping Scene {i+1} Audio: Already exists ({filename})")
+                # V5: Ensure Audio FX is applied even if raw file exists
+                try:
+                    apply_audio_fx(filename)
+                except Exception as e:
+                    print(f"      ⚠️ Audio FX failed (using bare voice): {e}")
                 audio_files.append(filename)
                 continue
                 
@@ -56,7 +62,7 @@ class VoiceboxStoryEngine:
             # Call Voicebox API
             payload = {
                 "text": clean_text_for_tts,
-                "profile_id": self.config.get("profile_id", "24fd0649-9d0f-450c-8749-d79301a1cb72")
+                "profile_id": self.config.get("profile_id", "66cee046-6d00-4055-9cfe-4fe9ca8637c9")
             }
             r = requests.post(f"{self.voicebox_url}/generate", json=payload)
             if r.status_code == 200:
@@ -68,6 +74,13 @@ class VoiceboxStoryEngine:
                     if audio_resp.status_code == 200:
                         with open(filename, "wb") as f:
                             f.write(audio_resp.content)
+                            
+                        # V5: Apply Audio FX (intercom bandpass, background drone/heartbeat)
+                        try:
+                            apply_audio_fx(filename)
+                        except Exception as e:
+                            print(f"      ⚠️ Audio FX failed (using bare voice): {e}")
+                            
                         audio_files.append(filename)
                     else:
                         print(f"❌ Error downloading audio {gen_id}: {audio_resp.status_code}")
@@ -132,11 +145,16 @@ class VoiceboxStoryEngine:
                 continue
                 
             print(f"   🎬 Muxing scene {i+1}...")
+            
+            # V5: Use the processed audio file if it exists, otherwise fallback to raw
+            processed_audio = audio.replace(".wav", "_processed.wav")
+            target_audio = processed_audio if os.path.exists(processed_audio) else audio
+
             mux_cmd = [
                 self.ffmpeg_path, "-y",
                 "-stream_loop", "-1",
                 "-i", video,
-                "-i", audio,
+                "-i", target_audio,
                 "-map", "0:v:0", "-map", "1:a:0",
                 "-c:v", "libx264", "-pix_fmt", "yuv420p",
                 "-c:a", "aac", "-b:a", "192k",

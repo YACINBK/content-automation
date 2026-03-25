@@ -120,7 +120,7 @@ async def run_automation(prompt: str, output_file: str, headless: bool = False):
         await page.wait_for_timeout(2000)
 
         # --- SELF-CORRECTION LOOP ---
-        max_attempts = 4  # 1 initial + 3 negotiation rounds
+        max_attempts = 5  # 1 initial + 3 negotiation rounds + 1 LAST RESORT PAGE RELOAD
         # Persistent LLM history maintained across all negotiation rounds
         llm_history = []
 
@@ -206,6 +206,46 @@ async def run_automation(prompt: str, output_file: str, headless: bool = False):
 
             # --- NEGOTIATION ---
             elif rejection_detected and attempt < max_attempts - 1:
+                # --- LAST RESORT: PAGE REFRESH & ORIGINAL PROMPT ---
+                if attempt == max_attempts - 2:
+                    print(f"🚨 [CRITICAL] Last Resort Triggered: Reloading session and retrying ORIGINAL prompt...")
+                    await page.goto("https://www.meta.ai/", wait_until="domcontentloaded", timeout=30000)
+                    await page.wait_for_timeout(5000)
+                    
+                    # Handle Age Gate on fresh session
+                    try:
+                        if await page.get_by_text("Welcome to Meta AI").count() > 0:
+                            dropdown = page.get_by_text("Year", exact=True)
+                            if await dropdown.count() > 0:
+                                await dropdown.first.click()
+                                for _ in range(25):
+                                    await page.keyboard.press("ArrowDown")
+                                    await page.wait_for_timeout(30)
+                                await page.keyboard.press("Enter")
+                            continue_btn = page.get_by_role("button", name="Continue")
+                            if await continue_btn.count() > 0:
+                                await continue_btn.first.click()
+                            await page.wait_for_timeout(2000)
+                    except Exception as e:
+                        pass
+
+                    for sel in selectors:
+                        loc = page.locator(sel).first
+                        if await loc.count() > 0 and await loc.is_visible():
+                            chat_box = loc
+                            break
+                            
+                    try:
+                        await chat_box.click(force=True)
+                        await chat_box.fill(gen_command)
+                        await page.wait_for_timeout(1000)
+                        await page.keyboard.press("Enter")
+                        await page.wait_for_timeout(2000)
+                    except Exception as e:
+                        print(f"[NEGOTIATION] Last resort submission failed: {e}")
+                    
+                    continue  # Skip LLM negotiation, jump to the final polling loop
+
                 print(f"[NEGOTIATION] Attempt {attempt + 1} — Entering Adaptive LLM Negotiation Phase...")
                 from llm_handler import LLMHandler
                 llm = LLMHandler()

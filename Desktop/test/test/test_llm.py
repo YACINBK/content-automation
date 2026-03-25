@@ -3,7 +3,7 @@ from llm_handler import LLMHandler
 
 llm = LLMHandler()
 prompt = "Spartan warrior scrolling TikTok"
-res = llm.generate_concept(prompt)
+res = llm.generate_script(prompt)
 
 if isinstance(res, str):
     print("WARNING: Returned raw string instead of dict")
