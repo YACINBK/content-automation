@@ -65,16 +65,22 @@ def process_concept_folder(concept_folder_path, output_drive_path):
         config_data = {}
         print(f"Warning: Could not load {config_file} for metadata.")
 
-    title = config_data.get("title", "Anomaly Log 999: UNKNOWN SUBJECT")
-    log_match = re.search(r'Log\s*(\d+)', title)
+    sfx_dir = os.path.join(os.path.dirname(__file__), "sfx")
+
+    # V6.3: High-Fidelity Metadata Extraction (Log Sync) - HARDENED
+    script = config_data.get("narrative_script", [])
+    first_line = str(script[0]) if script else "Anomaly Log 999."
+    log_match = re.search(r'Log\s*(\d+)', first_line)
     log_num = log_match.group(1) if log_match else "999"
     
+    # Fallback to config title for subject name, but clean it up
+    title = str(config_data.get("title", "UNKNOWN SUBJECT"))
     subject_match = re.search(r':\s*([^\']+)', title)
-    subject_name = subject_match.group(1).strip().upper() if subject_match else "UNKNOWN SUBJECT"
+    subject_name = subject_match.group(1).strip().upper() if subject_match else title.upper()
 
     toxic_words_list = extract_toxic_words_from_config(config_file)
     print(f"Toxic words detected: {toxic_words_list}")
-    primary_threat = toxic_words_list[0].upper() if toxic_words_list else "SYSTEM"
+    primary_threat = str(toxic_words_list[0]).upper() if toxic_words_list else "SYSTEM"
 
     # 2. Load Whisper and extract word-level timestamps
     print("Running local Whisper AI for timestamp extraction...")
@@ -82,8 +88,15 @@ def process_concept_folder(concept_folder_path, output_drive_path):
     result = model.transcribe(master_video, word_timestamps=True)
 
     # 3. Setup MoviePy Video
+    # V6.4: Reverting to 'Pure Blueprint' aesthetic - removing aggressive protocols
     video_clip = VideoFileClip(master_video)
+    
+    # We still read the outcome for the final seal
+    outcome = str(config_data.get("anomaly_outcome", "STABILIZED")).upper()
+    
     w, h = video_clip.size
+    duration = video_clip.duration
+    y_pos = int(h * 0.82)  # 82% down the screen, safe from TikTok UI
     duration = video_clip.duration
     y_pos = int(h * 0.82)  # 82% down the screen, safe from TikTok UI
 
@@ -140,14 +153,22 @@ def process_concept_folder(concept_folder_path, output_drive_path):
     # --- V5 MICRO-STIMULI ---
 
     # [V5-1] Scene 1 Dossier Banner — Clinical metadata + Controversial Flashing Text
-    print("Applying V5: Dossier Hook Banner (Scene 1)...")
+    print("Applying V6.1: Refined Dossier Hook Banner (Scene 1)...")
     
-    # Mathematical scaling to universally fit ANY video resolution Meta AI spits out
-    censor_height = int(h * 0.32)
-    censor_bar = ColorClip(size=(w, censor_height), color=[0, 0, 0]) \
+    # V6.2: Reduced height (18%) for a more professional, cinematic profile
+    censor_height = int(h * 0.18) 
+    # V5.2: Semi-transparent dark overlay for a more premium "Found Footage" look
+    censor_bar = ColorClip(size=(w, censor_height), color=[10, 10, 10]) \
         .set_start(0).set_end(3.0) \
+        .set_opacity(0.85) \
         .set_position(('center', 'top'))
-    subtitle_clips.append(censor_bar)
+    
+    # Add a thin clinical separator line at the bottom of the banner
+    separator = ColorClip(size=(w, 2), color=[57, 255, 20]) \
+        .set_start(0).set_end(3.0) \
+        .set_position(('center', censor_height))
+    
+    subtitle_clips.extend([censor_bar, separator])
 
     # Calculate dynamic font sizes based purely on width to prevent overflow
     fz_small = int(w * 0.030)
@@ -165,82 +186,200 @@ def process_concept_folder(concept_folder_path, output_drive_path):
             subtitle_clips.append(rec_dot)
 
     # Clinical Metadata UI - Perfectly Centered
-    meta_text1 = TextClip(f"ANOMALY LOG: {log_num}", fontsize=fz_small, font='Courier', color='white') \
-        .set_position(('center', int(y_step * 1.8))).set_start(0).set_end(3.0)
+    # V6.2: Dynamic extraction from NEW JSON fields
+    meta_subject = config_data.get("subject_name", subject_name).upper()
+    meta_hook = config_data.get("hook_threat", primary_threat).upper()
+
+    meta_text1 = TextClip(f"LOG_REFERENCE: {log_num}", fontsize=fz_small, font='Courier', color='white') \
+        .set_position(('center', int(y_step * 1.5))).set_start(0).set_end(3.0)
     
-    meta_text2 = TextClip(f"SUBJECT: {subject_name}", fontsize=fz_med, font='Courier-Bold', color='#CCCCCC') \
-        .set_position(('center', int(y_step * 2.8))).set_start(0).set_end(3.0)
+    meta_text2 = TextClip(f"SUBJECT_PROFILE: {meta_subject}", fontsize=fz_med, font='Courier-Bold', color='#FFFFFF') \
+        .set_position(('center', int(y_step * 2.5))).set_start(0).set_end(3.0)
     
-    meta_text3 = TextClip("NEURO-STATUS: CRITICAL FAILURE", fontsize=fz_small, font='Courier', color='#FF4444') \
-        .set_position(('center', int(y_step * 3.8))).set_start(0).set_end(3.0)
+    meta_text3 = TextClip("CONTAINMENT_STATUS: COMPROMISED", fontsize=fz_small, font='Courier', color='#FFCC00') \
+        .set_position(('center', int(y_step * 3.5))).set_start(0).set_end(3.0)
     
     subtitle_clips.extend([meta_text1, meta_text2, meta_text3])
+ 
+    # High-Impact Aesthetic Hook - Strobing Neon Warning
+    hook_text = f" [ CRITICAL THREAT: {meta_hook} ] "
+    for i in range(4):
+        start_flash = 0.8 + (i * 0.5)
+        hook_clip = TextClip(hook_text, fontsize=fz_hook, font='Courier-Bold', color='#1A1A1A', bg_color='#39FF14') \
+            .set_position(('center', int(y_step * 4.8))).set_start(start_flash).set_end(start_flash + 0.3)
+        subtitle_clips.append(hook_clip)
 
-    # Controversial / Viral Hook Flash (Centered)
-    hook_text = f"[WARNING: {primary_threat} OVERRIDE]"
-    hook_clip = TextClip(hook_text, fontsize=fz_hook, font='Courier-Bold', color='#1A1A1A', bg_color='#39FF14') \
-        .set_position(('center', int(y_step * 5.0))).set_start(0.8).set_end(2.8)
-    subtitle_clips.append(hook_clip)
-
-    # [V5-2] Subliminal SYSTEM FAILURE flash — 1 frame at exactly t=12s
-    print("Applying V5: Subliminal SYSTEM FAILURE flash (t=12s)...")
+    # [V5-2] Subliminal CONTAINMENT BREACH flash — 1 frame at exactly t=12s
+    print("Applying V5: Subliminal CONTAINMENT BREACH flash (t=12s)...")
     if duration > 12.04:
-        subliminal_bg = ColorClip(size=(w, h), color=[0, 0, 0]) \
+        subliminal_bg = ColorClip(size=(w, h), color=[255, 0, 0]).set_opacity(0.8) \
             .set_start(12.0).set_end(12.04) \
             .set_position(('left', 'top'))
         subliminal_text = TextClip(
-            "SYSTEM FAILURE",
-            fontsize=72, font='Courier-Bold', color='white'
+            "CONTAINMENT BREACH",
+            fontsize=fz_hook, font='Courier-Bold', color='white'
         ).set_position('center').set_start(12.0).set_end(12.04)
         subtitle_clips.extend([subliminal_bg, subliminal_text])
 
-    # [V5-3] CRT Overlay — Semi-transparent scanline texture over entire video
-    crt_path = os.path.join(os.path.dirname(__file__), "sfx", "crt_overlay.png")
+    # [V5-3] Cinematic Overlays: Subtle Scientific Schema & Vignette
+    print("Applying V5: Refined Scientific Schema Filters...")
+    
+    # 1. CRT Scanlines (Downscaled for precision)
+    crt_path = os.path.join(sfx_dir, "crt_overlay.png")
     if os.path.exists(crt_path):
-        print("Applying V5: CRT scanline overlay...")
-        crt = ImageClip(crt_path) \
-            .set_duration(duration) \
-            .set_opacity(0.15) \
-            .set_position(('left', 'top'))
-        # Resize to match video dimensions if needed
-        if crt.size != (w, h):
-            crt = crt.resize((w, h))
+        crt = ImageClip(crt_path).set_duration(duration).set_opacity(0.06).set_position(('left', 'top'))
+        if crt.size != (w, h): crt = crt.resize((w, h))
         subtitle_clips.append(crt)
-    else:
-        print("Skipping CRT overlay: sfx/crt_overlay.png not found")
+        
+    # 2. Dynamic Vintage Grain (Full-Screen Shifting for "Alive" texture)
+    paper_path = os.path.join(sfx_dir, "paper_texture.png")
+    if os.path.exists(paper_path):
+        import random
+        # We resize grain to be slightly larger than screen to allow for safe jittering
+        paper = ImageClip(paper_path).set_duration(duration).set_opacity(0.06)
+        paper = paper.resize(height=h + 100) # Ensure it covers vertical and horizontal
+        
+        # Proper dynamic centering with jitter:
+        # We offset the center by a small random amount every frame
+        def jitter_pos(t):
+            return ('center', 'center') # We'll use a simpler jitter if lambda is failing
+            
+        # Refined approach: Static resize with subtle opacity pulse instead of jitter if jitter is buggy
+        # But user wants jitter/movement. Let's fix the lambda to return absolute pixels correctly.
+        paper = paper.set_position(lambda t: (int((w - paper.w)/2) + random.randint(-15, 15), 
+                                              int((h - paper.h)/2) + random.randint(-15, 15)))
+        subtitle_clips.append(paper)
+        
+    # 3. Professional Cinematic Vignette (Soft feathered focal mask)
+    vignette_path = os.path.join(sfx_dir, "vignette.png")
+    if os.path.exists(vignette_path):
+        # We revert to a full-screen fit but with a 10% overflow to soften the corner transitions
+        vig = ImageClip(vignette_path).set_duration(duration).set_opacity(0.18)
+        vig = vig.resize(width=w, height=h).set_position(('left', 'top'))
+        subtitle_clips.append(vig)
 
-    # 5. Composite Final Audio FX (Drone, Heartbeat, Bracket Strikes)
-    print("Applying V5: Continuous Audio FX (Drone, Heartbeat, Bracket Strikes)...")
-    from moviepy.audio.fx.all import volumex, audio_loop
+    # 4. Subtle Forensic Watermarks (Aesthetic depth)
+    watermark1 = TextClip("INTERNAL USE ONLY / CLASSIFIED", fontsize=20, font='Courier', color='white') \
+        .set_opacity(0.08).set_position((int(w*0.05), int(h*0.95))).set_duration(duration)
     
-    # Base extracted audio track
-    base_audio = video_clip.audio
-    audio_layers = [base_audio]
-    
-    sfx_dir = os.path.join(os.path.dirname(__file__), "sfx")
-    
-    drone_path = os.path.join(sfx_dir, "sub_bass_drone.mp3")
-    if os.path.exists(drone_path):
-        drone = AudioFileClip(drone_path).fx(volumex, 0.25).fx(audio_loop, duration=duration)
-        audio_layers.append(drone)
+    watermark2 = TextClip(f"LOG_ID: {log_num}", fontsize=20, font='Courier', color='white') \
+        .set_opacity(0.08).set_position((int(w*0.75), int(h*0.95))).set_duration(duration)
         
-    heart_path = os.path.join(sfx_dir, "heartbeat_monitor.mp3")
-    if os.path.exists(heart_path):
-        heart = AudioFileClip(heart_path).fx(volumex, 0.12).fx(audio_loop, duration=duration)
-        audio_layers.append(heart)
+    subtitle_clips.extend([watermark1, watermark2])
+
+    # 5. Chrono-Clinical Audio Strategy (V5.7) — Multi-Layer Nervous System Manipulation
+    print("Applying V5.7: Chrono-Clinical Audio Architecture...")
+    from pydub import AudioSegment
+    
+    # Extract voiceover from video (already high-passed in audio_fx_engine)
+    temp_voice = os.path.join(concept_folder_path, "temp_voice.wav")
+    video_clip.audio.write_audiofile(temp_voice, fps=44100, nbytes=2, codec='pcm_s16le', verbose=False, logger=None)
+    
+    master_voice = AudioSegment.from_file(temp_voice)
+    total_ms = len(master_voice)
+    
+    # Layer 1: The Foundation (Drone + Hiss)
+    print("   [Layer 1] Foundation: Drone + Hiss (-20dB)...")
+    drone = AudioSegment.from_file(os.path.join(sfx_dir, "sub_bass_drone.mp3")) - 20
+    hiss = AudioSegment.from_file(os.path.join(sfx_dir, "hiss.mp3")) - 20
+    foundation = drone.overlay(hiss)
+    # Loop foundation to full duration
+    foundation = (foundation * ((total_ms // len(foundation)) + 2))[:total_ms]
+    
+    # Layer 2: The Escalation Pulse (EKG 0-12s)
+    print("   [Layer 2] Escalation: EKG (-12dB, Cuts at 12s)...")
+    ekg = AudioSegment.from_file(os.path.join(sfx_dir, "ekg.mp3")) - 12
+    ekg_loop = (ekg * ((12000 // len(ekg)) + 2))[:12000]
+    ekg_loop = ekg_loop.fade_out(20) # Sharp but clean cut
+    
+    # Layer 3: The Micro-Stimuli Strikes (Geiger Click)
+    print("   [Layer 3] Micro-Stimuli: Geiger Clicks (-15dB)...")
+    # V6.4: Softened click intensity to prevent overwhelming the voice
+    click_sfx = AudioSegment.from_file(os.path.join(sfx_dir, "click.mp3")) - 15
+    
+    # Layer 4: The 12-Second "Void" (Zap)
+    print("   [Layer 4] The Void: Zap (-20dB at 12s)...")
+    # V6.3 Fix: Softened to -20dB to prevent masking the voice
+    zap = AudioSegment.from_file(os.path.join(sfx_dir, "glitch.mp3")) - 20
+    
+    # Layer 5: The Override (Typing 20s-End)
+    print("   [Layer 5] The Override: Typing (-10dB at 20s+)...")
+    typing_sfx = AudioSegment.from_file(os.path.join(sfx_dir, "typing.mp3")) - 10
+    typing_loop = (typing_sfx * (((total_ms - 20000) // len(typing_sfx)) + 2))[:total_ms - 20000]
+    
+    # Master Assembly
+    master_mix = foundation
+    master_mix = master_mix.overlay(ekg_loop, position=0)
+    master_mix = master_mix.overlay(zap, position=12000)
+    if total_ms > 20000:
+        master_mix = master_mix.overlay(typing_loop, position=20000)
         
-    click_path = os.path.join(sfx_dir, "click.mp3")
-    if os.path.exists(click_path):
-        toxic_set = set(w.lower().strip() for w in toxic_words_list)
-        for word_info in all_word_timestamps:
-            raw_word = word_info.get("word", "").strip().lower()
-            clean = re.sub(r'[^\w]', '', raw_word)
-            if clean in toxic_set:
-                start_t = word_info['start']
-                click = AudioFileClip(click_path).fx(volumex, 0.70).set_start(start_t)
-                audio_layers.append(click)
-                
-    final_audio = CompositeAudioClip(audio_layers)
+    # Inject Geiger Strikes at [bracketed] words
+    strike_count = 0
+    for word_ts in all_word_timestamps:
+        if word_ts['word'] in toxic_words_list:
+            pos = int(word_ts['start'] * 1000)
+            master_mix = master_mix.overlay(click_sfx, position=pos)
+            strike_count += 1
+    print(f"   [FX] Injected {strike_count} Geiger-Strikes.")
+
+    # Final Layer: Overlay master voice (loudest)
+    final_master_audio = master_mix.overlay(master_voice)
+    
+    # Export and attach
+    final_audio_path = os.path.join(concept_folder_path, "chrono_clinical_master.wav")
+    final_master_audio.export(final_audio_path, format="wav")
+    
+    final_audio = AudioFileClip(final_audio_path)
+    
+    # V6.2 End Polish: Professional Archive Closure "The Seal"
+    linger_duration = 1.6
+    final_total_duration = duration + linger_duration
+    
+    print(f"Applying V6.2: Final Dossier Closure Stamp (The Seal)...")
+    
+    # Black background clip for the end of the video
+    black_bg = ColorClip(size=(w, h), color=[0, 0, 0]).set_duration(linger_duration).set_start(duration)
+    
+    # V6.2: "The Seal" - Centered, multi-line status report with a neon border
+    seal_y = int(h * 0.45)
+    seal_width = int(w * 0.85)
+    seal_height = 140
+    
+    seal_bg = ColorClip(size=(seal_width, seal_height), color=[10, 10, 10]).set_opacity(0.95) \
+        .set_start(duration).set_end(final_total_duration).set_position('center')
+    
+    # Decorative neon separators for the seal
+    seal_border_top = ColorClip(size=(seal_width, 2), color=[57, 255, 20]) \
+        .set_start(duration).set_end(final_total_duration).set_position(('center', seal_y - int(seal_height/2)))
+    
+    seal_border_bot = ColorClip(size=(seal_width, 2), color=[57, 255, 20]) \
+        .set_start(duration).set_end(final_total_duration).set_position(('center', seal_y + int(seal_height/2)))
+    
+    # V6.3: Dynamic Outcome from JSON
+    # outcome variable is defined at the top of the function now
+    seal_content = f"LOG_ID: {log_num} / STATUS: SEALED\nANOMALY_DISPATCH: {outcome}"
+    
+    seal_text = TextClip(seal_content, fontsize=int(w*0.04), font='Courier-Bold', color='#39FF14', align='center') \
+        .set_start(duration + 0.2).set_end(final_total_duration).set_position('center')
+    
+    # Add a cinematic 0.1s white "Static Flash" or "CRT Pop" at transition
+    flash = ColorClip(size=(w, h), color=[255, 255, 255]).set_opacity(0.35) \
+        .set_start(duration).set_end(duration + 0.08).set_position('center')
+    
+    subtitle_clips.extend([black_bg, seal_bg, seal_border_top, seal_border_bot, seal_text, flash])
+
+    # Re-calculate final audio with the linger
+    # (Since pydub was used, we need to make sure the foundation loop covers final_total_duration)
+    # We already have final_master_audio. We can just append 1.5s of drone-only or silence.
+    print(f"   [Layer 6] Master Audio: Fading out over linger period...")
+    foundation_tail = (foundation * 2)[:int(linger_duration * 1000)].fade_out(int(linger_duration * 1000))
+    final_master_audio = final_master_audio + foundation_tail
+    
+    # Export final master audio again with linger
+    final_audio_path = os.path.join(concept_folder_path, "chrono_clinical_master_linger.wav")
+    final_master_audio.export(final_audio_path, format="wav")
+    final_audio = AudioFileClip(final_audio_path)
 
     # 6. Save Whisper timestamps for archival/factory_floor (optional but good practice)
     timestamps_path = os.path.join(concept_folder_path, "whisper_timestamps.json")
@@ -251,21 +390,27 @@ def process_concept_folder(concept_folder_path, output_drive_path):
         }, f, indent=2)
 
     # 7. Composite and Export
-    final_video = CompositeVideoClip([video_clip] + subtitle_clips)
-    final_video = final_video.set_audio(final_audio)
+    try:
+        final_video = CompositeVideoClip([video_clip] + subtitle_clips)
+        final_video = final_video.set_duration(final_total_duration)
+        final_video = final_video.set_audio(final_audio)
 
-    final_video.write_videofile(
-        final_output_path,
-        fps=30,
-        codec="libx264",
-        audio_codec="aac",
-        threads=4,
-        preset="fast"
-    )
-
-    print(f"Success! Saved to {final_output_path}.")
-    video_clip.close()
-    final_video.close()
+        final_video.write_videofile(
+            final_output_path,
+            fps=30,
+            codec="libx264",
+            audio_codec="aac",
+            threads=4,
+            preset="fast"
+        )
+        print(f"Success! Saved to {final_output_path}.")
+    except Exception as e:
+        print(f"CRITICAL ERROR in {project_name} rendering: {e}")
+        import traceback
+        traceback.print_exc()
+    finally:
+        video_clip.close()
+        final_video.close()
 
 
 if __name__ == "__main__":

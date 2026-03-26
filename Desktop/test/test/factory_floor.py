@@ -22,6 +22,8 @@ FFMPEG_PATH = os.getenv("FFMPEG_PATH", "ffmpeg")
 CONFIGS_DIR = "configs"
 WORKSPACE_DIR = "niche_output"
 DRIVE_DIR = "niche_output_captioned"
+# How many concepts to produce per factory run. Upload scheduler drips them 3/day independently.
+DAILY_PRODUCTION_LIMIT = int(os.getenv("DAILY_PRODUCTION_LIMIT", "4"))
 
 # Important: Inject FFmpeg into system path so Whisper can find it when imported
 if FFMPEG_PATH and os.path.exists(FFMPEG_PATH):
@@ -30,8 +32,8 @@ if FFMPEG_PATH and os.path.exists(FFMPEG_PATH):
         os.environ["PATH"] += os.pathsep + ffmpeg_dir
         print(f"[{os.path.basename(__file__)}] Injected FFmpeg to PATH: {ffmpeg_dir}")
 
-# Concurrency Limits (Adjusted for safety and speed)
-MAX_AUDIO_WORKERS = 10
+# Concurrency Limits (Extreme Resilience V6.5.2)
+MAX_AUDIO_WORKERS = 1  # Full sequential to avoid 500/Timeout errors
 MAX_VISUAL_WORKERS = 3   # Meta AI Account Protection
 MAX_MUX_WORKERS = 2
 MAX_CONCAT_WORKERS = 1
@@ -74,33 +76,43 @@ async def audio_worker(worker_id):
             
             # Resume Check
             if os.path.exists(output_file) and os.path.getsize(output_file) > 0:
-                print(f"[A-W{worker_id}] ⏩ Skpping {project_name} S{scene_idx+1} Audio: Already exists")
+                print(f"[A-W{worker_id}] SKIPPING {project_name} S{scene_idx+1} Audio: Already exists")
             else:
-                print(f"[A-W{worker_id}] 🎙️ Generating {project_name} S{scene_idx+1}: {text[:30]}...")
+                print(f"[A-W{worker_id}] GENERATING {project_name} S{scene_idx+1}: {text[:30]}...")
                 clean_text = text.replace('[', '').replace(']', '')
                 payload = {
                     "text": clean_text,
                     "profile_id": cfg.get("profile_id", "66cee046-6d00-4055-9cfe-4fe9ca8637c9")
                 }
                 
-                # Fetch audio via blocking request (wrapped in asyncio thread)
-                loop = asyncio.get_running_loop()
-                r = await loop.run_in_executor(None, lambda: requests.post(f"{VOICEBOX_URL}/generate", json=payload))
+                # V6.5.1: Robust Retry Loop for API Stability
+                import time
+                max_retries = 3
+                success = False
+                for attempt in range(max_retries):
+                    try:
+                        loop = asyncio.get_running_loop()
+                        # V6.5.2: Increased timeout to 30s
+                        r = await loop.run_in_executor(None, lambda: requests.post(f"{VOICEBOX_URL}/generate", json=payload, timeout=30))
+                        
+                        if r.status_code == 200:
+                            data = r.json()
+                            gen_id = data.get("id") or data.get("generation_id")
+                            if gen_id:
+                                a_resp = await loop.run_in_executor(None, lambda: requests.get(f"{VOICEBOX_URL}/audio/{gen_id}", timeout=30))
+                                if a_resp.status_code == 200:
+                                    with open(output_file, "wb") as f:
+                                        f.write(a_resp.content)
+                                    success = True
+                                    break
+                    except Exception as try_err:
+                        print(f"[A-W{worker_id}] Attempt {attempt+1} failed: {try_err}")
+                    
+                    print(f"[A-W{worker_id}] Retrying {project_name} S{scene_idx+1} in 2s...")
+                    await asyncio.sleep(2)
                 
-                if r.status_code == 200:
-                    data = r.json()
-                    gen_id = data.get("id") or data.get("generation_id")
-                    if gen_id:
-                        a_resp = await loop.run_in_executor(None, lambda: requests.get(f"{VOICEBOX_URL}/audio/{gen_id}"))
-                        if a_resp.status_code == 200:
-                            with open(output_file, "wb") as f:
-                                f.write(a_resp.content)
-                        else:
-                            print(f"[A-W{worker_id}] ❌ Failed downloading {gen_id}: {a_resp.status_code}")
-                    else:
-                        print(f"[A-W{worker_id}] ❌ Invalid response data: {data}")
-                else:
-                    print(f"[A-W{worker_id}] ❌ TTS API Error: {r.status_code}")
+                if not success:
+                    print(f"[A-W{worker_id}] ❌ FATAL: Failed {project_name} S{scene_idx+1} after 3 attempts")
 
             # V5: Run Audio FX Engine on the raw TTS file (intercom filter + background layers)
             if os.path.exists(output_file) and os.path.getsize(output_file) > 0:
@@ -108,7 +120,7 @@ async def audio_worker(worker_id):
                     loop = asyncio.get_running_loop()
                     await loop.run_in_executor(None, lambda: apply_audio_fx(output_file))
                 except Exception as fx_err:
-                    print(f"[A-W{worker_id}] ⚠️ Audio FX failed (using raw): {fx_err}")
+                    print(f"[A-W{worker_id}] WARNING: Audio FX failed (using raw): {fx_err}")
 
             async with tracker_lock:
                 tracker[project_name]["scenes"][scene_idx]["audio"] = True
@@ -140,9 +152,9 @@ async def visual_worker(worker_id):
             
             # Resume Check
             if os.path.exists(output_file) and os.path.getsize(output_file) > 0:
-                print(f"[V-W{worker_id}] ⏩ Skipping {project_name} S{scene_idx+1} Video: Already exists")
+                print(f"[V-W{worker_id}] SKIPPING {project_name} S{scene_idx+1} Video: Already exists")
             else:
-                print(f"[V-W{worker_id}] 🧠 LLM Meta-Mastering {project_name} S{scene_idx+1}...")
+                print(f"[V-W{worker_id}] LLM Meta-Mastering {project_name} S{scene_idx+1}...")
                 full_concept = f"{prompt_core} {anchor}"
                 
                 # Async LLM Call
@@ -151,12 +163,12 @@ async def visual_worker(worker_id):
                 if not master_prompt:
                     master_prompt = f"Imagine a video of {full_concept}"
                     
-                print(f"[V-W{worker_id}] 📹 Rendering {project_name} S{scene_idx+1} on Meta AI...")
+                print(f"[V-W{worker_id}] Video Rendering {project_name} S{scene_idx+1} on Meta AI...")
                 
                 # Single-instance automation call to protect account (concurrency handled by queue pools)
                 success = await run_automation(master_prompt, output_file, headless=True)
                 if not success:
-                    print(f"[V-W{worker_id}] ❌ Failed to generate video for {project_name} S{scene_idx+1}")
+                    print(f"[V-W{worker_id}] ERROR: Failed to generate video for {project_name} S{scene_idx+1}")
 
             # If file exists now, update tracker
             if os.path.exists(output_file):
@@ -190,9 +202,9 @@ async def mux_worker(worker_id):
             
             # Resume Check
             if os.path.exists(synced_file) and os.path.getsize(synced_file) > 0:
-                print(f"[M-W{worker_id}] ⏩ Skipping {project_name} S{scene_idx+1} Muxing: Already exists")
+                print(f"[M-W{worker_id}] SKIPPING {project_name} S{scene_idx+1} Muxing: Already exists")
             else:
-                print(f"[M-W{worker_id}] ⚙️ Muxing {project_name} S{scene_idx+1}...")
+                print(f"[M-W{worker_id}] MUXING {project_name} S{scene_idx+1}...")
                 mux_cmd = [
                     FFMPEG_PATH, "-y",
                     "-stream_loop", "-1",
@@ -241,7 +253,7 @@ async def concat_worker(worker_id):
                     safe_path = os.path.abspath(synced_clip).replace('\\', '/')
                     f.write(f"file '{safe_path}'\n")
                     
-            print(f"[C-W{worker_id}] 🔗 Assembling Master Reel: {project_name}...")
+            print(f"[C-W{worker_id}] Assembling Master Reel: {project_name}...")
             
             concat_cmd = [
                 FFMPEG_PATH, "-y",
@@ -255,14 +267,14 @@ async def concat_worker(worker_id):
             await proc.wait()
             
             if os.path.exists(master_file_path):
-                print(f"[C-W{worker_id}] ✅ Master Reel Assembled: {project_name}")
-                print(f"[C-W{worker_id}] ⚡ Auto-Triggering Whisper Caption Engine...")
+                print(f"[C-W{worker_id}] SUCCESS: Master Reel Assembled: {project_name}")
+                print(f"[C-W{worker_id}] Auto-Triggering Whisper Caption Engine...")
                 
                 # Execute caption engine automatically
                 loop = asyncio.get_running_loop()
                 await loop.run_in_executor(None, lambda: process_concept_folder(output_dir, DRIVE_DIR))
             else:
-                print(f"[C-W{worker_id}] ❌ Failed to assemble {project_name}")
+                print(f"[C-W{worker_id}] ERROR: Failed to assemble {project_name}")
 
         except Exception as e:
             print(f"[C-W{worker_id}] ERROR: {e}")
@@ -274,13 +286,29 @@ async def concat_worker(worker_id):
 
 async def main():
     print("=====================================================")
-    print("🏭 DARK PRODUCTIVITY :: PARALLEL FACTORY FLOOR 🏭")
+    print("DARK PRODUCTIVITY :: PARALLEL FACTORY FLOOR")
     print("=====================================================")
     
     config_files = glob.glob(os.path.join(CONFIGS_DIR, "*.json"))
     if not config_files:
         print("No configs found in configs/ directory.")
         return
+
+    # Skip configs that are already fully captioned (no need to re-render)
+    pending = []
+    for cf in sorted(config_files):
+        name = Path(cf).stem
+        captioned = os.path.join(DRIVE_DIR, f"{name}_Captioned.mp4")
+        if os.path.exists(captioned):
+            print(f"[SKIP] Already captioned: {name}")
+        else:
+            pending.append(cf)
+
+    config_files = pending[:DAILY_PRODUCTION_LIMIT]
+    if not config_files:
+        print("All configs are already captioned. Nothing to do.")
+        return
+    print(f"Throttling production to {len(config_files)} projects (limit: {DAILY_PRODUCTION_LIMIT}).")
 
     # Initialize tracker and inject tasks
     for config_path in config_files:
@@ -326,7 +354,7 @@ async def main():
     await asyncio.gather(*audio_workers, *visual_workers, *mux_workers, *concat_workers)
     
     print("=====================================================")
-    print("✅ BATCH FULLY COMPLETE. ALL MASTER REELS CAPTIONED.")
+    print("BATCH FULLY COMPLETE. ALL MASTER REELS CAPTIONED.")
     print("=====================================================")
 
 

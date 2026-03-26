@@ -42,7 +42,7 @@ def _load_sfx(filename) -> AudioSegment | None:
     """Loads an SFX file, returning None gracefully if it doesn't exist."""
     path = os.path.join(SFX_DIR, filename)
     if not os.path.exists(path):
-        print(f"   [FX] ⚠️  SFX file not found, skipping: {path}")
+        print(f"   [FX] WARNING: SFX file not found, skipping: {path}")
         return None
     ext = os.path.splitext(filename)[1].lower().strip(".")
     return AudioSegment.from_file(path, format=ext)
@@ -78,24 +78,24 @@ def process_audio(
 
     # Skip if already processed (resume-safe)
     if os.path.exists(output_path) and os.path.getsize(output_path) > 0:
-        print(f"   [FX] ⏩ Skipping (already processed): {os.path.basename(output_path)}")
+        print(f"   [FX] Skipping (already processed): {os.path.basename(output_path)}")
         return output_path
 
-    print(f"   [FX] 🎚️  Processing: {os.path.basename(input_path)}")
+    print(f"   [FX] Processing: {os.path.basename(input_path)}")
 
     # --- STEP 1: Load raw TTS voice ---
     voice = AudioSegment.from_file(input_path)
     duration_ms = len(voice)
 
-    # --- STEP 2: Intercom Filter (bandpass 500Hz–2500Hz + Overdrive) ---
-    print(f"   [FX] 📻 Applying intercom bandpass filter (500Hz–2500Hz) and +4dB boost...")
-    voice = high_pass_filter(voice, cutoff=500)
-    voice = low_pass_filter(voice, cutoff=2500)
+    # --- STEP 2: Intercom Filter (bandpass 400Hz–3000Hz + Overdrive) ---
+    print(f"   [FX] Applying intercom bandpass filter (400Hz–3000Hz) and +4dB boost...")
+    voice = high_pass_filter(voice, cutoff=400)
+    voice = low_pass_filter(voice, cutoff=3000)
     voice = voice + 4  # Boost volume to compensate for frequency loss
 
     # --- STEP 3: Export ---
     voice.export(output_path, format="wav")
-    print(f"   [FX] ✅ Intercom FX applied → {output_path}")
+    print(f"   [FX] Intercom FX applied -> {output_path}")
 
     return output_path
 

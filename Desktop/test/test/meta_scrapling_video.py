@@ -108,6 +108,7 @@ async def run_automation(prompt: str, output_file: str, headless: bool = False):
             await chat_box.scroll_into_view_if_needed()
             await chat_box.click(force=True, timeout=10000)
             await chat_box.fill(gen_command)
+            await page.screenshot(path="debug_input_filled.png")
             await page.wait_for_timeout(500)
             await page.keyboard.press("Enter")
         except Exception as e:
@@ -117,7 +118,8 @@ async def run_automation(prompt: str, output_file: str, headless: bool = False):
             await page.keyboard.type(gen_command)
             await page.keyboard.press("Enter")
 
-        await page.wait_for_timeout(2000)
+        await page.wait_for_timeout(5000)
+        await page.screenshot(path="debug_after_submit.png")
 
         # --- SELF-CORRECTION LOOP ---
         max_attempts = 5  # 1 initial + 3 negotiation rounds + 1 LAST RESORT PAGE RELOAD
@@ -200,7 +202,7 @@ async def run_automation(prompt: str, output_file: str, headless: bool = False):
                 with open(output_file, "wb") as f:
                     f.write(base64.b64decode(video_base64.split(",", 1)[1]))
 
-                print(f"SUCCESS: Video saved → {output_file}")
+                print(f"SUCCESS: Video saved -> {output_file}")
                 await browser.close()
                 return True
 

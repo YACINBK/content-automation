@@ -1,0 +1,28 @@
+{
+  "_comment": "Example concept config. Copy this file, rename it to your concept slug (e.g. the_spartans_draft.json), and the pipeline will process it automatically.",
+  "title": "Anomaly Log 72: The Spartan's Draft",
+  "subject_name": "Leonidas",
+  "hook_threat": "BRAIN_ROT",
+  "anomaly_outcome": "CORRUPTED",
+  "narrative_script": [
+    "Anomaly Log 72. Subject Leonidas is trapped in email [hell].",
+    "His warrior brain cannot process the polite digital [poison].",
+    "The algorithm demands submission; his sanity starts to [fray].",
+    "He is a husk now. Soul replaced by corporate [glitch-code].",
+    "Seal the log. Purge this corrupted data stream immediately."
+  ],
+  "image_prompts": [
+    "Imagine a video of a Spartan warrior in full bronze armor sitting at a modern office desk, staring helplessly at a glowing email draft on a computer screen, drawn in the style of a vintage 1980s scientific engineering schematic, retro-clinical aesthetic. Shot on 35mm film, macro photography, shallow depth of field. Grainy film texture, chromatic aberration, stark off-white minimalist background, muted colors with a single toxic neon accent color, highly detailed technical illustration, classified document vibe, vertical 9:16 aspect ratio.",
+    "Imagine a video of a close-up on a Spartan warrior's bloodshot eyes reflecting the cold blue light of a monitor, his kohl-lined gaze hollow and unfocused, drawn in the style of a vintage 1980s scientific engineering schematic, retro-clinical aesthetic. Shot on 35mm film, macro photography, shallow depth of field. Grainy film texture, chromatic aberration, stark off-white minimalist background, muted colors with a single toxic neon accent color, highly detailed technical illustration, classified document vibe, vertical 9:16 aspect ratio.",
+    "Imagine a video of a Spartan warrior's mind visualized as crumbling ancient Greek columns being replaced by flowing binary code and circuit traces, his warrior identity dissolving into digital static, drawn in the style of a vintage 1980s scientific engineering schematic, retro-clinical aesthetic. Shot on 35mm film, macro photography, shallow depth of field. Grainy film texture, chromatic aberration, stark off-white minimalist background, muted colors with a single toxic neon accent color, highly detailed technical illustration, classified document vibe, vertical 9:16 aspect ratio.",
+    "Imagine a video of a Spartan warrior slumped over a keyboard, his tarnished armor dull, the monitor screen showing a completed corporate email filled with passive language, drawn in the style of a vintage 1980s scientific engineering schematic, retro-clinical aesthetic. Shot on 35mm film, macro photography, shallow depth of field. Grainy film texture, chromatic aberration, stark off-white minimalist background, muted colors with a single toxic neon accent color, highly detailed technical illustration, classified document vibe, vertical 9:16 aspect ratio.",
+    "Imagine a video of a digital void rapidly purging corrupted data packets, streams of neon code dissolving into silence, the anomaly contained, drawn in the style of a vintage 1980s scientific engineering schematic, retro-clinical aesthetic. Shot on 35mm film, macro photography, shallow depth of field. Grainy film texture, chromatic aberration, stark off-white minimalist background, muted colors with a single toxic neon accent color, highly detailed technical illustration, classified document vibe, vertical 9:16 aspect ratio."
+  ],
+  "sfx_prompts": [
+    "Sword clash cut short by keyboard typing",
+    "Low growl fading into frustrated sigh, computer hum",
+    "Glitching battle cries mixing with digital noise",
+    "Corporate email phrases read by a hollow robotic voice",
+    "Powerful digital whoosh then silence"
+  ]
+}
