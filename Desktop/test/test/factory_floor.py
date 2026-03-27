@@ -17,11 +17,13 @@ from audio_fx_engine import process_audio as apply_audio_fx
 load_dotenv(override=True)
 
 # --- CONFIGURATION ---
-VOICEBOX_URL = os.getenv("VOICEBOX_BASE_URL", "http://localhost:5002")
-FFMPEG_PATH = os.getenv("FFMPEG_PATH", "ffmpeg")
-CONFIGS_DIR = "configs"
-WORKSPACE_DIR = "niche_output"
-DRIVE_DIR = "niche_output_captioned"
+# Strip any accidental surrounding quotes that dotenv sometimes adds on Windows
+VOICEBOX_URL = os.getenv("VOICEBOX_BASE_URL", "http://127.0.0.1:17493").strip("'").strip('"')
+FFMPEG_PATH  = os.getenv("FFMPEG_PATH", "ffmpeg").strip("'").strip('"')
+# Niche-injectable paths: run.py sets these at runtime. Legacy fallbacks keep direct execution working.
+CONFIGS_DIR  = os.getenv("NICHE_CONFIGS_DIR",   "configs")
+WORKSPACE_DIR = os.getenv("NICHE_WORKSPACE_DIR", "niche_output")
+DRIVE_DIR    = os.getenv("NICHE_CAPTIONED_DIR",  "niche_output_captioned")
 # How many concepts to produce per factory run. Upload scheduler drips them 3/day independently.
 DAILY_PRODUCTION_LIMIT = int(os.getenv("DAILY_PRODUCTION_LIMIT", "4"))
 
@@ -32,10 +34,12 @@ if FFMPEG_PATH and os.path.exists(FFMPEG_PATH):
         os.environ["PATH"] += os.pathsep + ffmpeg_dir
         print(f"[{os.path.basename(__file__)}] Injected FFmpeg to PATH: {ffmpeg_dir}")
 
-# Concurrency Limits (Extreme Resilience V6.5.2)
-MAX_AUDIO_WORKERS = 1  # Full sequential to avoid 500/Timeout errors
-MAX_VISUAL_WORKERS = 3   # Meta AI Account Protection
-MAX_MUX_WORKERS = 2
+# Concurrency Limits (Extreme Resilience V6.5.3)
+# To avoid Meta AI anti-bot timeouts and concurrency drops, EVERYTHING is purely sequential.
+# Reliability > Speed
+MAX_AUDIO_WORKERS = 1
+MAX_VISUAL_WORKERS = 1
+MAX_MUX_WORKERS = 1
 MAX_CONCAT_WORKERS = 1
 
 os.makedirs(WORKSPACE_DIR, exist_ok=True)
@@ -60,8 +64,8 @@ tracker_lock = asyncio.Lock()
 
 async def audio_worker(worker_id):
     while True:
+        task = await audio_queue.get()
         try:
-            task = await audio_queue.get()
             if task is None:
                 break
                 
@@ -92,8 +96,8 @@ async def audio_worker(worker_id):
                 for attempt in range(max_retries):
                     try:
                         loop = asyncio.get_running_loop()
-                        # V6.5.2: Increased timeout to 30s
-                        r = await loop.run_in_executor(None, lambda: requests.post(f"{VOICEBOX_URL}/generate", json=payload, timeout=30))
+                        # V6.5.2: Increased timeout to 60s (server takes ~17s under normal load)
+                        r = await loop.run_in_executor(None, lambda: requests.post(f"{VOICEBOX_URL}/generate", json=payload, timeout=60))
                         
                         if r.status_code == 200:
                             data = r.json()
@@ -135,8 +139,8 @@ async def audio_worker(worker_id):
 
 async def visual_worker(worker_id):
     while True:
+        task = await visual_queue.get()
         try:
-            task = await visual_queue.get()
             if task is None:
                 break
                 
@@ -166,7 +170,8 @@ async def visual_worker(worker_id):
                 print(f"[V-W{worker_id}] Video Rendering {project_name} S{scene_idx+1} on Meta AI...")
                 
                 # Single-instance automation call to protect account (concurrency handled by queue pools)
-                success = await run_automation(master_prompt, output_file, headless=True)
+                # HEADLESS = FALSE so the user can see and debug the Meta AI session tab interactively
+                success = await run_automation(master_prompt, output_file, headless=False)
                 if not success:
                     print(f"[V-W{worker_id}] ERROR: Failed to generate video for {project_name} S{scene_idx+1}")
 
@@ -185,8 +190,8 @@ async def visual_worker(worker_id):
 
 async def mux_worker(worker_id):
     while True:
+        task = await mux_queue.get()
         try:
-            task = await mux_queue.get()
             if task is None:
                 break
                 
@@ -216,8 +221,6 @@ async def mux_worker(worker_id):
                     "-shortest",
                     synced_file
                 ]
-                
-                # Ensure we run ffmpeg asynchronously so we don't block the thread
                 proc = await asyncio.create_subprocess_exec(*mux_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                 await proc.wait()
 
@@ -235,8 +238,8 @@ async def mux_worker(worker_id):
 
 async def concat_worker(worker_id):
     while True:
+        task = await concat_queue.get()
         try:
-            task = await concat_queue.get()
             if task is None:
                 break
                 
@@ -269,8 +272,6 @@ async def concat_worker(worker_id):
             if os.path.exists(master_file_path):
                 print(f"[C-W{worker_id}] SUCCESS: Master Reel Assembled: {project_name}")
                 print(f"[C-W{worker_id}] Auto-Triggering Whisper Caption Engine...")
-                
-                # Execute caption engine automatically
                 loop = asyncio.get_running_loop()
                 await loop.run_in_executor(None, lambda: process_concept_folder(output_dir, DRIVE_DIR))
             else:
@@ -289,10 +290,25 @@ async def main():
     print("DARK PRODUCTIVITY :: PARALLEL FACTORY FLOOR")
     print("=====================================================")
     
-    config_files = glob.glob(os.path.join(CONFIGS_DIR, "*.json"))
-    if not config_files:
-        print("No configs found in configs/ directory.")
-        return
+    # NEW: Read exact concepts from concepts.txt so we ignore old mismatched JSON files
+    sys.path.append(os.getcwd())
+    try:
+        from tmp_v65_patcher_fixed import parse_concepts
+        concepts = parse_concepts("concepts.txt")
+        active_slugs = [c[0] for c in concepts]
+        config_files = [os.path.join(CONFIGS_DIR, f"{slug}.json") for slug in active_slugs]
+        config_files = [cf for cf in config_files if os.path.exists(cf)]
+        if not config_files:
+            print(f"No active configs found matching concepts.txt in {CONFIGS_DIR}/")
+            return
+    except Exception as e:
+        print(f"Warning: Failed to parse concepts.txt, falling back to all configs: {e}")
+        config_files = glob.glob(os.path.join(CONFIGS_DIR, "*.json"))
+        # Exclude the example template
+        config_files = [c for c in config_files if Path(c).stem != "example_concept"]
+        if not config_files:
+            print("No configs found in configs/ directory.")
+            return
 
     # Skip configs that are already fully captioned (no need to re-render)
     pending = []
@@ -354,9 +370,24 @@ async def main():
     await asyncio.gather(*audio_workers, *visual_workers, *mux_workers, *concat_workers)
     
     print("=====================================================")
-    print("BATCH FULLY COMPLETE. ALL MASTER REELS CAPTIONED.")
+    print("FACTORY BATCH REPORT")
     print("=====================================================")
-
+    success_count = 0
+    for name in tracker.keys():
+        captioned = os.path.join(DRIVE_DIR, f"{name}_Captioned.mp4")
+        if os.path.exists(captioned):
+            print(f"✅ SUCCESS : {name}")
+            success_count += 1
+        else:
+            print(f"❌ INCOMPLETE: {name} (Scenes failed due to Meta AI drops)")
+    
+    print("=====================================================")
+    if success_count == len(tracker):
+        print("ALL MASTER REELS CAPTIONED SUCCESSFULLY.")
+    else:
+        print(f"ATTENTION: {len(tracker) - success_count} concept(s) failed completion.")
+        print("Run `python factory_floor.py` again to resume processing missing scenes.")
+        print("=====================================================")
 
 if __name__ == "__main__":
     asyncio.run(main())

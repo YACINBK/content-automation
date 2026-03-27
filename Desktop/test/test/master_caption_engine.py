@@ -8,6 +8,43 @@ from moviepy.editor import (
     ImageClip, ColorClip, AudioFileClip, CompositeAudioClip
 )
 
+# --- VISUAL ASSET FILENAMES (edit here if you rename files) ---
+ASSET_VIGNETTE   = "vignette.png"
+ASSET_FILM_DUST  = "grunge-textured-transparent-background_53876-194736.png"
+ASSET_CRT        = "glitch-overlay-vhs-static-noise-grain-texture-signal-error-dark-gray-black-fuzzy-grain-artifacts-analog-distortion-effect-rough-abstract-background_279525-11939.png"
+ASSET_CAM_FRAME  = "vertical-camera-frame-video-screen-with-rec-viewfinder-display-movie-recording-surveillance_789916-9275-removebg-preview.png"
+
+def _load_overlay(sfx_dir, filename, duration, w, h, opacity):
+    """
+    Safe overlay loader — loads PNG via PIL in uint8 space to avoid MoviePy's
+    float64 memory blowout when stacking multiple ImageClips.
+    Returns None (with a warning) if the file is missing or fails to load.
+    """
+    import numpy as np
+    from PIL import Image
+
+    path = os.path.join(sfx_dir, filename)
+    if not os.path.exists(path):
+        print(f"   [OVERLAY] WARNING: Asset not found, skipping: {filename}")
+        return None
+    try:
+        # Open in RGBA to preserve any built-in transparency
+        img = Image.open(path).convert("RGBA").resize((w, h), Image.LANCZOS)
+
+        # Apply opacity by scaling the alpha channel (stays in uint8 — no float64 blowup)
+        r, g, b, a = img.split()
+        a = a.point(lambda px: int(px * opacity))
+        img = Image.merge("RGBA", (r, g, b, a))
+
+        arr = np.array(img)  # shape: (h, w, 4), dtype uint8
+        clip = (ImageClip(arr, ismask=False)
+                .set_duration(duration)
+                .set_position(('left', 'top')))
+        return clip
+    except Exception as e:
+        print(f"   [OVERLAY] ERROR loading {filename}: {e}")
+        return None
+
 def extract_toxic_words_from_config(config_path):
     """Reads the JSON config and extracts words wrapped in [brackets]."""
     if not os.path.exists(config_path):
@@ -45,7 +82,7 @@ def process_concept_folder(concept_folder_path, output_drive_path):
     # Extract project name (e.g., 'production_nasa_launch_failure' -> 'nasa_launch_failure')
     project_name = folder_name.replace("production_", "")
 
-    config_file = os.path.join("configs", f"{project_name}.json")
+    config_file = os.path.join(os.getenv("NICHE_CONFIGS_DIR", "configs"), f"{project_name}.json")
     master_video = os.path.join(concept_folder_path, f"{project_name}_master_aesthetic.mp4")
 
     if not os.path.exists(master_video):
@@ -178,12 +215,8 @@ def process_concept_folder(concept_folder_path, output_drive_path):
     # Calculate dynamic Y-spacing evenly distributing lines across the censor bar
     y_step = censor_height / 6
 
-    # Blinking [REC] indicator (Centered at top)
-    for i in range(6):
-        if i % 2 == 0:
-            rec_dot = TextClip("[REC]", fontsize=fz_small, font='Courier-Bold', color='red') \
-                .set_position(('center', int(y_step * 0.7))).set_start(i * 0.5).set_end((i + 1) * 0.5)
-            subtitle_clips.append(rec_dot)
+    # NOTE: REC indicator is now handled by the camera frame PNG overlay (has built-in red dot)
+    # No text-based blinker needed here.
 
     # Clinical Metadata UI - Perfectly Centered
     # V6.2: Dynamic extraction from NEW JSON fields
@@ -221,50 +254,42 @@ def process_concept_folder(concept_folder_path, output_drive_path):
         ).set_position('center').set_start(12.0).set_end(12.04)
         subtitle_clips.extend([subliminal_bg, subliminal_text])
 
-    # [V5-3] Cinematic Overlays: Subtle Scientific Schema & Vignette
-    print("Applying V5: Refined Scientific Schema Filters...")
-    
-    # 1. CRT Scanlines (Downscaled for precision)
-    crt_path = os.path.join(sfx_dir, "crt_overlay.png")
-    if os.path.exists(crt_path):
-        crt = ImageClip(crt_path).set_duration(duration).set_opacity(0.06).set_position(('left', 'top'))
-        if crt.size != (w, h): crt = crt.resize((w, h))
-        subtitle_clips.append(crt)
-        
-    # 2. Dynamic Vintage Grain (Full-Screen Shifting for "Alive" texture)
-    paper_path = os.path.join(sfx_dir, "paper_texture.png")
-    if os.path.exists(paper_path):
-        import random
-        # We resize grain to be slightly larger than screen to allow for safe jittering
-        paper = ImageClip(paper_path).set_duration(duration).set_opacity(0.06)
-        paper = paper.resize(height=h + 100) # Ensure it covers vertical and horizontal
-        
-        # Proper dynamic centering with jitter:
-        # We offset the center by a small random amount every frame
-        def jitter_pos(t):
-            return ('center', 'center') # We'll use a simpler jitter if lambda is failing
-            
-        # Refined approach: Static resize with subtle opacity pulse instead of jitter if jitter is buggy
-        # But user wants jitter/movement. Let's fix the lambda to return absolute pixels correctly.
-        paper = paper.set_position(lambda t: (int((w - paper.w)/2) + random.randint(-15, 15), 
-                                              int((h - paper.h)/2) + random.randint(-15, 15)))
-        subtitle_clips.append(paper)
-        
-    # 3. Professional Cinematic Vignette (Soft feathered focal mask)
-    vignette_path = os.path.join(sfx_dir, "vignette.png")
-    if os.path.exists(vignette_path):
-        # We revert to a full-screen fit but with a 10% overflow to soften the corner transitions
-        vig = ImageClip(vignette_path).set_duration(duration).set_opacity(0.18)
-        vig = vig.resize(width=w, height=h).set_position(('left', 'top'))
-        subtitle_clips.append(vig)
+    # [V6.5] Chrono-Clinical Visual Overlays
+    # Z-ORDER (bottom to top): Vignette → Film Dust → CRT Scanlines → Camera Frame UI
+    # These are loaded BEFORE subtitle_clips so they render BENEATH all text.
+    print("Applying V6.5: Chrono-Clinical Visual Overlay Stack...")
 
-    # 4. Subtle Forensic Watermarks (Aesthetic depth)
+    overlay_clips = []
+
+    # Layer 1: Vignette (darkens edges, draws focus to center)
+    vignette = _load_overlay(sfx_dir, ASSET_VIGNETTE, duration, w, h, opacity=0.40)
+    if vignette:
+        overlay_clips.append(vignette)
+        print("   [OVERLAY] Vignette loaded at 40% opacity.")
+
+    # Layer 2: Film Dust / Grunge (adds physical archival texture)
+    film_dust = _load_overlay(sfx_dir, ASSET_FILM_DUST, duration, w, h, opacity=0.20)
+    if film_dust:
+        overlay_clips.append(film_dust)
+        print("   [OVERLAY] Film Dust loaded at 20% opacity.")
+
+    # Layer 3: CRT / VHS Scanlines (monitor distortion effect)
+    crt = _load_overlay(sfx_dir, ASSET_CRT, duration, w, h, opacity=0.12)
+    if crt:
+        overlay_clips.append(crt)
+        print("   [OVERLAY] CRT Scanlines loaded at 12% opacity.")
+
+    # Layer 4: Camera Frame UI (viewfinder crosshair + built-in REC dot indicator)
+    cam_frame = _load_overlay(sfx_dir, ASSET_CAM_FRAME, duration, w, h, opacity=0.55)
+    if cam_frame:
+        overlay_clips.append(cam_frame)
+        print("   [OVERLAY] Camera Frame UI loaded at 55% opacity.")
+
+    # Subtle Forensic Watermarks (go into subtitle_clips so they sit above overlays)
     watermark1 = TextClip("INTERNAL USE ONLY / CLASSIFIED", fontsize=20, font='Courier', color='white') \
         .set_opacity(0.08).set_position((int(w*0.05), int(h*0.95))).set_duration(duration)
-    
     watermark2 = TextClip(f"LOG_ID: {log_num}", fontsize=20, font='Courier', color='white') \
         .set_opacity(0.08).set_position((int(w*0.75), int(h*0.95))).set_duration(duration)
-        
     subtitle_clips.extend([watermark1, watermark2])
 
     # 5. Chrono-Clinical Audio Strategy (V5.7) — Multi-Layer Nervous System Manipulation
@@ -390,8 +415,9 @@ def process_concept_folder(concept_folder_path, output_drive_path):
         }, f, indent=2)
 
     # 7. Composite and Export
+    # STRICT Z-ORDER: base → overlays (vignette/dust/crt/cam) → subtitles/UI text
     try:
-        final_video = CompositeVideoClip([video_clip] + subtitle_clips)
+        final_video = CompositeVideoClip([video_clip] + overlay_clips + subtitle_clips)
         final_video = final_video.set_duration(final_total_duration)
         final_video = final_video.set_audio(final_audio)
 

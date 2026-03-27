@@ -21,11 +21,22 @@ from llm_handler import LLMHandler
 load_dotenv(override=True)
 
 # --- CONFIG ---
-ONEDRIVE_DIR     = r"D:\OneDrive - Ministere de l'Enseignement Superieur et de la Recherche Scientifique\DarkProductivity"
-CAPTIONED_DIR    = "niche_output_captioned"
-NICHE_OUTPUT_DIR = "niche_output"
-CONFIGS_DIR      = "configs"
-UPLOAD_LOG       = "upload_log.json"
+# Niche-injectable paths: run.py sets NICHE_* env vars at runtime. Fallbacks = legacy paths.
+CAPTIONED_DIR    = os.getenv("NICHE_CAPTIONED_DIR",  "niche_output_captioned")
+NICHE_OUTPUT_DIR = os.getenv("NICHE_WORKSPACE_DIR",  "niche_output")
+CONFIGS_DIR      = os.getenv("NICHE_CONFIGS_DIR",    "configs")
+
+# OneDrive: Base path from global .env, subfolder from per-niche niche.env
+# Result: D:\OneDrive - ...\DarkProductivity  OR  D:\OneDrive - ...\Stoicism
+_ONEDRIVE_BASE   = os.getenv("ONEDRIVE_BASE", r"D:\OneDrive - Ministere de l'Enseignement Superieur et de la Recherche Scientifique")
+_ONEDRIVE_SUB    = os.getenv("ONEDRIVE_SUBFOLDER", "DarkProductivity")
+ONEDRIVE_DIR     = os.path.join(_ONEDRIVE_BASE, _ONEDRIVE_SUB)
+
+# Google Drive: folder name per niche (created automatically if not found)
+GDRIVE_FOLDER    = os.getenv("GDRIVE_FOLDER", "Niche")
+
+# upload_log is scoped per-niche captioned dir to prevent cross-niche ledger contamination
+UPLOAD_LOG       = os.path.join(CAPTIONED_DIR, "upload_log.json")
 
 # US Peak RPM Slots (UTC)
 # - 13:00 UTC = 09:00 AM EDT (Morning Commute)
@@ -195,8 +206,8 @@ def execute_batch():
     try:
         yt_service = authenticate_youtube()
         drive_service = authenticate_drive()
-        niche_folder_id = get_or_create_folder(drive_service, "Niche")
-        print("✅ Authorized with Google APIs (YouTube + Drive).")
+        niche_folder_id = get_or_create_folder(drive_service, GDRIVE_FOLDER)
+        print(f"✅ Authorized with Google APIs (YouTube + Drive). G-Drive folder: '{GDRIVE_FOLDER}'")
     except Exception as e:
         print(f"❌ Failed to authenticate APIs: {e}")
         print("Please check your client_secrets.json and run again.")
