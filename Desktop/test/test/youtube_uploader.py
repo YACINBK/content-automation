@@ -55,8 +55,8 @@ def build_metadata(project_name, config_path):
     
     return title, description, tags
 
-def upload_short(youtube, file_path, title, description, tags, privacy='private', category_id="27"):
-    """Uploads the video to YouTube as a Short."""
+def upload_short(youtube, file_path, title, description, tags, privacy='private', publish_at=None, category_id="27"):
+    """Uploads the video to YouTube as a Short. If publish_at is provided, schedules it."""
     print(f"📤 Uploading: {title}")
     
     body = {
@@ -71,6 +71,11 @@ def upload_short(youtube, file_path, title, description, tags, privacy='private'
             'selfDeclaredMadeForKids': False
         }
     }
+    
+    if publish_at:
+        body['status']['publishAt'] = publish_at
+        # YouTube API requires scheduling to be strictly marked as 'private' during the upload
+        body['status']['privacyStatus'] = 'private'
 
     media = MediaFileUpload(file_path, chunksize=-1, resumable=True, mimetype='video/mp4')
     
