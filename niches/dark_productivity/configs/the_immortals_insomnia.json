@@ -1,0 +1,27 @@
+{
+  "title": "Anomaly Log 72: The Vampire Scroll",
+  "subject_name": "Vlad",
+  "hook_threat": "BRAIN_ROT",
+  "anomaly_outcome": "CORRUPTED",
+  "narrative_script": [
+    "Anomaly Log 72. Subject Vlad is trapped in endless scrolling.",
+    "His ancient eyes are burning from the screen's [digital] glare.",
+    "The [algorithm] feeds. His will fades. Only the feed remains.",
+    "He is a husk. The ancient hunter, now forever [glitch-locked].",
+    "Seal the log. Purge this corrupted data stream immediately."
+  ],
+  "image_prompts": [
+    "A photophobic vampire hunched over a glowing phone in a dark room.",
+    "Close up of bloodshot eyes, reflecting the harsh blue light of a phone screen.",
+    "Abstract visualization of an algorithm consuming a vampire's essence.",
+    "A hollow, empty shell of a vampire, still scrolling mindlessly.",
+    "Digital corruption spreading across a vampire's face, pixelating the skin."
+  ],
+  "sfx_prompts": [
+    "Faint, rapid scrolling sounds.",
+    "A low, strained groan of pain.",
+    "Digital static and distortion.",
+    "A hollow, echoing sigh.",
+    "System error sound, followed by silence."
+  ]
+}

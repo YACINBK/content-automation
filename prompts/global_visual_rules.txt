@@ -1,0 +1,5 @@
+﻿VISUAL PROMPT ENGINEERING LAWS:
+LAW 1: Every prompt MUST start with exactly: 'Imagine a video of ' followed immediately by the subject.
+LAW 2: Banned Verbs: tied, chained, anchored, trapped, bloody. Use: suspended inside, hovering over, interacting with, resting near.
+LAW 3: Do NOT include spelled-out labels, letters, signs, or text in the scene. Use 'abstract symbols' or 'complex code' instead.
+LAW 4: Output ONLY the final visual prompt text. No explanation. No markdown. No quotes. Start directly with 'Imagine a video of'.

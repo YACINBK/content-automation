@@ -1,0 +1,99 @@
+so this is the context that we will work on ; scrapping directly from the whisk ai this time not from the meta ai as we used to do , this work is for a different niche which requires more efforts to be done as i have upgraded my plan on gemini pro, so the thing is that i want to make the same work done with meta ai ; automation for videos this time not just shorts, which will require more proficiency while writing prompts that must include better details and more technical words. But before doing this we must make sure that we make the automation flow correct and hopefully you have a great idea on it as you did already with meta ai , and indeed it is the same concept here with of course some changes to be done regarding cookies and that stuff to be discussed later, i am now sending you the concept of an existant scrapper that is limited and wants me to buy a lisence to do this job: 
+Automate video generation on Google Flow with batch processing. Free tier: 50 videos/day. Developed by Flow Automation.
+
+Transform hours of manual work into minutes! Automate video generation on Google Flow (VEO AI) with intelligent batch processing. This extension automates repetitive tasks on Google's Flow platform, allowing you to process multiple video generation requests simultaneously without manual intervention.
+
+WHAT THIS EXTENSION DOES:
+Auto Flow Pro automates video generation workflows on Google Flow (labs.google.com/fx/tools/flow). It interacts with the Flow interface to submit prompts, monitor video generation progress, and automatically download completed videos. The extension processes multiple prompts in batches, manages queues, and handles the entire workflow from prompt submission to file download.
+
+KEY FEATURES:
+✅ Batch process multiple videos simultaneously (1-50 concurrent videos)
+✅ Import prompts from TXT, DOCX, and JSON files with automatic parsing
+✅ Auto-download completed videos with organized folder structure
+✅ Real-time progress tracking and monitoring with detailed logs
+✅ Support for multiple creation modes: Text-to-Video, Frames-to-Video, Ingredients-to-Video, and Create Image
+✅ Smart queue management with pause/resume/stop controls
+✅ Automatic retry logic for failed generations
+✅ File import support for bulk prompt processing
+✅ Session management with unique download folders
+✅ Error handling and recovery mechanisms
+
+HOW IT WORKS:
+1. Install the extension and create a free account
+2. Navigate to Google Flow (labs.google.com/fx/tools/flow)
+3. Add prompts by writing directly, importing files, or uploading images
+4. Configure batch size and automation settings
+5. Start processing and the extension handles prompt submission, monitoring, and downloads automatically
+6. Videos are downloaded to organized folders on your computer
+
+PERMISSIONS EXPLAINED:
+• activeTab: Required to interact with Google Flow pages where you're working
+• downloads: Required to automatically download generated videos to your computer
+• storage: Required to save your settings, queue, and processing history locally on your device
+• sidePanel: Required to display the extension's user interface
+• notifications: Required to notify you when batch processing is complete
+• scripting: Required to inject automation scripts into Google Flow pages
+
+PRIVACY & DATA:
+• All prompts and queue data are stored locally on your device using Chrome's storage API
+• Only your email address is collected for authentication and license management
+• No prompts, videos, or personal data are shared with third parties
+• All server communications use secure HTTPS encryption
+• License validation requires minimal device information (device ID only)
+• Full privacy policy available in the extension
+
+FREE PLAN:
+• 50 videos per day (resets daily)
+• Batch processing up to 10 prompts simultaneously
+• 2 outputs per prompt
+• File import (TXT, DOCX, JSON formats)
+• Basic automation features
+• Real-time progress tracking
+• 100% free forever - no credit card required
+• Community support via WhatsApp
+
+PRO PLAN (One-Time License):
+• Unlimited videos per day
+• Unlimited batch processing (up to 4 prompts simultaneously)
+• 4 outputs per prompt
+• All Free plan features included
+• Advanced settings and configurations
+• Priority support
+• Early access to new features
+
+HOW TO GET PRO LICENSE:
+To upgrade to PRO and unlock unlimited features, visit our website at https://flowautomation.store or contact us via email at support@flowautomation.store. PRO licenses are available as a one-time payment and provide lifetime access to all premium features. License activation is handled securely through our website, and you will receive your license key via email after purchase. Note: PRO license purchases are processed through our website, not through the Chrome Web Store payment system.
+
+REQUIREMENTS:
+• Google Chrome browser (latest version recommended)
+• Active Google account with access to Google Flow (VEO AI)
+• Internet connection for license validation and video generation
+• Google Flow must be accessible at labs.google.com/fx/tools/flow
+
+PERFECT FOR:
+• Content creators generating multiple video variations
+• Marketing teams producing bulk video content
+• Agencies managing client video deliverables
+• Social media managers creating video content at scale
+• Anyone who needs to automate repetitive video generation tasks
+
+SUPPORT & CONTACT:
+• Website: https://flowautomation.store
+• Email: support@flowautomation.store
+• Support via WhatsApp: Available through website contact page
+• Updates Channel: https://whatsapp.com/channel/0029VbBLxERC6ZvoBlEopV3c
+
+IMPORTANT NOTES:
+• This extension requires access to Google Flow (VEO AI) platform
+• Video generation is performed by Google's servers, not by this extension
+• The extension automates interactions with Google Flow's web interface
+• Free tier has daily limits (50 videos/day) that reset at midnight
+• PRO license provides unlimited access with a one-time payment
+• All functionality works only on Google Flow pages (labs.google.com/fx/tools/flow)
+• PRO license purchases are processed by Flow Automation (the developer), not by Google or Chrome Web Store
+• License terms, pricing, and refund policies are available on our website
+• All transactions are processed securely through our website payment system
+
+Install now and start automating your video generation workflow! Create a free account to get started - no credit card required.
+,,, 
+we are making our scrapper which must be better than this one , which is actually injected in a chrome extension

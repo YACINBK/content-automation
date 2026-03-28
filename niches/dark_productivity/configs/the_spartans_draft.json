@@ -1,0 +1,27 @@
+{
+  "title": "Anomaly Log 72: The Spartan's Draft",
+  "subject_name": "Leonidas",
+  "hook_threat": "BRAIN_ROT",
+  "anomaly_outcome": "CORRUPTED",
+  "narrative_script": [
+    "Anomaly Log 72. Subject Leonidas is trapped in email [hell].",
+    "His warrior brain is melting against the glowing screen now.",
+    "The blinking cursor eats his honor. His rage is [lost].",
+    "He is a broken husk. The algorithm has total control.",
+    "Seal the log. Purge the corrupted data stream immediately."
+  ],
+  "image_prompts": [
+    "A photorealistic Spartan warrior in full battle armor, sitting hunched over a modern laptop, looking utterly bewildered and frustrated. Dim office lighting.",
+    "Close up on the Spartan's face, illuminated by the blue light of the screen. His eyes are bloodshot and strained. Veins pulsing in his forehead.",
+    "A chaotic visualization of email code and Spartan weaponry clashing and merging. Conflicting symbols and icons. Feeling of mental overload.",
+    "The Spartan, now slumped in his chair, armor askew, staring blankly at the screen. The laptop displays a generic error message. Despair.",
+    "A digital representation of the Anomaly Log sealing shut, with glitching Spartan imagery fading into static. Red alert lights flashing."
+  ],
+  "sfx_prompts": [
+    "Sound of heavy breathing and frustrated grunts mixed with keyboard clicks.",
+    "High-pitched whine of electronic feedback combined with the clang of metal on metal.",
+    "Distorted, echoing laughter layered over the sound of rapid-fire email notifications.",
+    "A long, drawn-out sigh of defeat followed by the crackling of corrupted data.",
+    "A sharp, decisive sound of a digital seal being activated, followed by silence."
+  ]
+}

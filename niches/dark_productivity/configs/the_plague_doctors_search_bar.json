@@ -1,0 +1,27 @@
+{
+  "title": "Anomaly Log 72: Plague Doctor",
+  "subject_name": "Dr. Bartholomew",
+  "hook_threat": "BRAIN_ROT",
+  "anomaly_outcome": "CORRUPTED",
+  "narrative_script": [
+    "Anomaly Log 72. Subject: Dr. Bartholomew. Trapped in digital [despair].",
+    "His beak cannot filter the blue light's [poison] anymore now.",
+    "The search bar feeds his dread. Sanity erodes slowly.",
+    "Empty mask. Hollow eyes. The algorithm has won. [Lost].",
+    "Seal the log. Purge the corrupted data stream immediately. [Goodbye]."
+  ],
+  "image_prompts": [
+    "A 17th-century plague doctor in full garb, hunched over a glowing laptop in a dimly lit room. His beak is slightly askew.",
+    "Close up on the plague doctor's gloved hand frantically typing into a search bar. The screen reflects in his dark eye sockets.",
+    "The laptop screen displays a chaotic mess of medical articles, forum posts about symptoms, and conspiracy theories. The doctor's face is illuminated by the harsh light.",
+    "The plague doctor's mask lies discarded on a dusty table. His face is gaunt and pale, illuminated by the laptop's glow. He stares blankly ahead.",
+    "A digital representation of the plague doctor's iconic mask, glitching and fragmenting into pixels. Static fills the screen."
+  ],
+  "sfx_prompts": [
+    "Sound of frantic typing on a keyboard.",
+    "A low, ominous hum emanating from the laptop.",
+    "Distorted voices and whispers overlapping each other.",
+    "A single, echoing cough followed by silence.",
+    "Loud static and a system error sound."
+  ]
+}

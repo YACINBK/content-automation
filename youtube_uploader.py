@@ -1,0 +1,106 @@
+import os
+import json
+import datetime
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaFileUpload
+from google_auth_oauthlib.flow import InstalledAppFlow
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from dotenv import load_dotenv
+
+load_dotenv(override=True)
+
+# The specific API scope needed to upload videos
+SCOPES = ['https://www.googleapis.com/auth/youtube.upload']
+CLIENT_SECRETS = os.getenv("YOUTUBE_CLIENT_SECRETS", "client_secrets.json")
+
+def authenticate_youtube():
+    """Handles the OAuth2 authentication and stores the token locally."""
+    creds = None
+    if os.path.exists('token.json'):
+        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+    
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS, SCOPES)
+            creds = flow.run_local_server(port=0)
+        with open('token.json', 'w') as token:
+            token.write(creds.to_json())
+            
+    return build('youtube', 'v3', credentials=creds)
+
+def build_metadata(project_name, config_path):
+    """Pull the title and description from the project's JSON config."""
+    with open(config_path, 'r', encoding='utf-8') as f:
+        config = json.load(f)
+    
+    # Build a human-readable title from the project name
+    title = project_name.replace('_', ' ').title()
+    title = f"POV: {title} #Shorts"
+    
+    # Use the last narrative line as the CTA description
+    script = config.get("narrative_script", [])
+    cta_line = script[-1] if script else ""
+    
+    # NEW: Fetch dynamic branding from environment
+    default_cta_text = os.getenv("YOUTUBE_CTA_TEXT", "Link in bio.")
+    default_tags_str = os.getenv("YOUTUBE_TAGS", "shorts, viral, documentary")
+    
+    description = (
+        f"{cta_line}\n\n"
+        f"{default_cta_text}\n\n"
+        f"#{' #'.join([t.strip().replace(' ', '') for t in default_tags_str.split(',')])}"
+    )
+    
+    tags = [t.strip() for t in default_tags_str.split(',')]
+    tags.append(project_name.replace('_', ' '))
+    
+    return title, description, tags
+
+def upload_short(youtube, file_path, title, description, tags, privacy='private', publish_at=None, category_id="27"):
+    """Uploads the video to YouTube as a Short. If publish_at is provided, schedules it."""
+    print(f"📤 Uploading: {title}")
+    
+    body = {
+        'snippet': {
+            'title': title[:100],  # YouTube title limit
+            'description': description,
+            'tags': tags,
+            'categoryId': category_id
+        },
+        'status': {
+            'privacyStatus': privacy,  # 'private' by default — review before publishing
+            'selfDeclaredMadeForKids': False
+        }
+    }
+    
+    if publish_at:
+        body['status']['publishAt'] = publish_at
+        # YouTube API requires scheduling to be strictly marked as 'private' during the upload
+        body['status']['privacyStatus'] = 'private'
+
+    media = MediaFileUpload(file_path, chunksize=-1, resumable=True, mimetype='video/mp4')
+    
+    request = youtube.videos().insert(
+        part=','.join(body.keys()),
+        body=body,
+        media_body=media
+    )
+
+    response = None
+    while response is None:
+        status, response = request.next_chunk()
+        if status:
+            print(f"   {int(status.progress() * 100)}% uploaded...")
+
+    video_id = response['id']
+    print(f"✅ Upload Complete! YouTube ID: {video_id}")
+    return video_id
+
+
+if __name__ == "__main__":
+    # Standalone test — will prompt OAuth login if no token.json exists
+    yt_service = authenticate_youtube()
+    print("Authentication OK. Service object ready.")

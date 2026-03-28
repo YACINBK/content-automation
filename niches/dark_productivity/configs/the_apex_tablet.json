@@ -1,0 +1,27 @@
+{
+  "title": "Anomaly Log 721: Apex Tablet",
+  "subject_name": "Rex",
+  "hook_threat": "BRAIN_ROT",
+  "anomaly_outcome": "CORRUPTED",
+  "narrative_script": [
+    "Anomaly Log 721. Subject Rex is trapped in ASMR [addiction].",
+    "Their ancient senses are overloaded, circuits frying against digital [poison].",
+    "The algorithm consumes all. Their hunting instincts are now [erased].",
+    "A shell. The tablet is their world. Soul-melt is now [complete].",
+    "Seal the log. Purge this corrupted prehistoric data stream immediately."
+  ],
+  "image_prompts": [
+    "A T-Rex, small arms outstretched, staring blankly at a glowing tablet.",
+    "Close up of the T-Rex's eye, reflecting a distorted ASMR video feed.",
+    "A desolate prehistoric landscape. In the foreground, a discarded tablet.",
+    "The T-Rex, now skeletal and emaciated, still clutches the tablet.",
+    "Digital glitches consume the T-Rex. The tablet screen shatters into code."
+  ],
+  "sfx_prompts": [
+    "Low, guttural T-Rex growl mixed with digital static.",
+    "Crisp ASMR sounds (tapping, whispering) layered with electronic distortion.",
+    "A slow, agonizing roar fading into digital white noise.",
+    "Hollow, echoing footsteps followed by the shattering of glass.",
+    "A final, corrupted screech cut short by a system error sound."
+  ]
+}
