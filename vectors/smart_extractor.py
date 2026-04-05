@@ -142,3 +142,86 @@ class SmartExtractor:
         
         print(f"[OK] Semantic Isolation complete: {out_path}")
         return out_path
+
+    def extract_holes(self, image_path, text_prompt="black background", tight_mask=True):
+        """
+        Extracts a raw boolean mask of the "holes" or trapped negative space based on the text prompt.
+        Unlike extract_subject, this doesn't apply the mask to the image; it returns the raw boolean mask array
+        which will be mathematically subtracted from the RMBG-2.0 global silhouette.
+        """
+        print(f"\n" + "="*50)
+        print(f"🕳️ NEGATIVE SPACE PUNCH-OUT: GROUNDED SAM 2")
+        print(f"[*] Hole Target Prompt: '{text_prompt}'")
+        print(f"[*] Tight Masking (Sub-part mode): {tight_mask}")
+        print(f"[*] Hardware Target: {self.device.upper()}")
+        print("="*50)
+
+        self.free_vram()
+        image = Image.open(image_path).convert("RGB")
+        
+        # PHASE 1: GROUNDING DINO
+        print("[*] PHASE 1/2: Loading Grounding DINO to locate trapped spaces...")
+        dino_id = "IDEA-Research/grounding-dino-tiny"
+        dino_processor = AutoProcessor.from_pretrained(dino_id)
+        dino_model = AutoModelForZeroShotObjectDetection.from_pretrained(dino_id).to(self.device)
+
+        dino_text = text_prompt if text_prompt.endswith(".") else text_prompt + "."
+        inputs = dino_processor(images=image, text=dino_text, return_tensors="pt").to(self.device)
+        
+        with torch.no_grad():
+            outputs = dino_model(**inputs)
+
+        results = dino_processor.post_process_grounded_object_detection(
+            outputs,
+            inputs.input_ids,
+            box_threshold=0.3,
+            text_threshold=0.3,
+            target_sizes=[image.size[::-1]]
+        )[0]
+
+        boxes = results["boxes"]
+        
+        del dino_model
+        del dino_processor
+        del inputs
+        del outputs
+        self.free_vram()
+
+        if len(boxes) == 0:
+            print("[!] WARNING: Grounding DINO found no trapped holes. Skipping punch-out.")
+            return None
+
+        print(f"[OK] Found {len(boxes)} trapped spaces. Passing to SAM 2...")
+
+        # PHASE 2: SAM 2
+        print("[*] PHASE 2/2: Loading SAM to generate precise hole masks...")
+        sam_id = "facebook/sam-vit-base"
+        sam_processor = AutoProcessor.from_pretrained(sam_id)
+        sam_model = AutoModelForMaskGeneration.from_pretrained(sam_id).to(self.device)
+
+        input_boxes = [boxes.cpu().numpy().tolist()]
+        sam_inputs = sam_processor(images=image, input_boxes=input_boxes, return_tensors="pt").to(self.device)
+        
+        with torch.no_grad():
+            sam_outputs = sam_model(**sam_inputs)
+
+        masks = sam_processor.image_processor.post_process_masks(
+            sam_outputs.pred_masks.cpu(),
+            sam_inputs["original_sizes"].cpu(),
+            sam_inputs["reshaped_input_sizes"].cpu()
+        )[0]
+        
+        del sam_model
+        del sam_processor
+        del sam_inputs
+        del sam_outputs
+        self.free_vram()
+
+        # Combine masks
+        # SAM 2 generates 3 masks (0=Blob/Whole, 1=Part, 2=Sub-part/Tight)
+        mask_idx = 2 if tight_mask else 0
+        best_masks = masks[:, mask_idx, :, :]
+        combined_mask = torch.any(best_masks, dim=0).float().numpy()
+        
+        # Return a boolean 2D numpy array where True == Hole
+        return combined_mask > 0.5

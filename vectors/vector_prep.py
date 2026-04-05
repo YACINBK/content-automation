@@ -77,6 +77,131 @@ class VectorPrepEngine:
         print(f"[OK] Background stripped: {out_path}")
         return out_path
 
+    def punch_holes_from_array(self, image_path, hole_mask_bool, invert_logic=False):
+        """
+        Takes the image_path (already alpha-masked by RMBG-2.0) and a boolean numpy array.
+        If invert_logic=False: Deletes the pixels where hole_mask_bool is True (Standard Punch Out).
+        If invert_logic=True: KEEPS the pixels where hole_mask_bool is True, and deletes the rest (Intersection).
+        """
+        print(f"\n[*] INITIATING DOUBLE-LAYERED MATH (Negative Space)...")
+        
+        img = Image.open(image_path).convert("RGBA")
+        img_arr = np.array(img)
+        alpha = img_arr[:, :, 3]
+        
+        # Ensure hole_mask_bool is the same shape as alpha
+        if hole_mask_bool.shape != alpha.shape:
+            import cv2
+            hole_mask_bool = cv2.resize(hole_mask_bool.astype(np.uint8), (alpha.shape[1], alpha.shape[0]), interpolation=cv2.INTER_NEAREST) > 0
+        
+        if invert_logic:
+            print(f"    -> Applying Intersection: KEEP where Mask is True, DELETE the rest.")
+            new_alpha = np.where(hole_mask_bool, alpha, 0)
+        else:
+            print(f"    -> Applying Subtraction: DELETE where Mask is True, KEEP the rest.")
+            new_alpha = np.where(hole_mask_bool, 0, alpha)
+        
+        # Re-attach the new alpha channel
+        img_arr[:, :, 3] = new_alpha
+        
+        final_img = Image.fromarray(img_arr, mode="RGBA")
+        
+        base_name = os.path.splitext(os.path.basename(image_path))[0]
+        out_path = os.path.join(self.output_dir, f"{base_name}_holes_punched.png")
+        final_img.save(out_path)
+        
+        print(f"[OK] Negative space successfully punched out: {out_path}\n")
+        return out_path
+
+    def chroma_key_punch(self, image_path, color="auto", tolerance=30):
+        """
+        Deterministic pixel math to hunt down trapped background colors and delete them.
+        If color="auto", it samples the 5-pixel outer perimeter of the image to find the dominant background color.
+        """
+        print(f"\n[*] INITIATING CHROMA-KEY MATH (Target: {color.upper()}, Tolerance: {tolerance})...")
+        
+        img = Image.open(image_path).convert("RGBA")
+        img_arr = np.array(img)
+        
+        rgb = img_arr[:, :, :3]
+        alpha = img_arr[:, :, 3]
+        
+        # Color resolution logic
+        target = None
+        color = color.lower().strip()
+        
+        if color == "auto":
+            print(f"    -> [AUTO-CHROMA] Sampling image perimeter for dominant background color...")
+            # Extract a 5-pixel border from all 4 sides
+            h, w = rgb.shape[:2]
+            border_thickness = 5
+            
+            top = rgb[0:border_thickness, :, :]
+            bottom = rgb[h-border_thickness:h, :, :]
+            left = rgb[border_thickness:h-border_thickness, 0:border_thickness, :]
+            right = rgb[border_thickness:h-border_thickness, w-border_thickness:w, :]
+            
+            # Flatten the borders into a single list of RGB pixels
+            border_pixels = np.vstack([
+                top.reshape(-1, 3), 
+                bottom.reshape(-1, 3), 
+                left.reshape(-1, 3), 
+                right.reshape(-1, 3)
+            ])
+            
+            # Find the statistical mode (the most frequent exact color on the border)
+            unique_colors, counts = np.unique(border_pixels, axis=0, return_counts=True)
+            target = unique_colors[np.argmax(counts)].astype(np.int16)
+            
+            # Print out the exact Hex code it found so the user knows what happened
+            hex_color = '#%02x%02x%02x' % tuple(target)
+            print(f"    -> [AUTO-CHROMA] Detected Dominant Background: RGB{tuple(target)} ({hex_color})")
+            
+        elif color == "white":
+            target = np.array([255, 255, 255], dtype=np.int16)
+        elif color == "black":
+            target = np.array([0, 0, 0], dtype=np.int16)
+        elif color == "red":
+            target = np.array([255, 0, 0], dtype=np.int16)
+        elif color == "green":
+            target = np.array([0, 255, 0], dtype=np.int16)
+        elif color == "blue":
+            target = np.array([0, 0, 255], dtype=np.int16)
+        elif color.startswith("#") and len(color) == 7:
+            # Parse hex code, e.g. "#FF0000"
+            try:
+                r = int(color[1:3], 16)
+                g = int(color[3:5], 16)
+                b = int(color[5:7], 16)
+                target = np.array([r, g, b], dtype=np.int16)
+            except ValueError:
+                pass
+                
+        if target is None:
+            print(f"[!] Warning: Unsupported chroma color '{color}'. Skipping.")
+            print(f"[!] Try 'white', 'black', 'red', 'green', 'blue', or a hex code like '#FF0000'")
+            return image_path
+            
+        # Calculate color distance
+        diff = np.abs(rgb.astype(np.int16) - target)
+        
+        # If all 3 RGB channels are within the tolerance, it's a match
+        mask = np.all(diff <= tolerance, axis=-1)
+        
+        erased_count = np.sum(mask)
+        print(f"    -> Math Result: Erasing {erased_count} stubborn pixels matching {color}.")
+        
+        # Punch out the matched pixels by zeroing their alpha
+        img_arr[mask, 3] = 0
+        
+        final_img = Image.fromarray(img_arr, mode="RGBA")
+        base_name = os.path.splitext(os.path.basename(image_path))[0]
+        out_path = os.path.join(self.output_dir, f"{base_name}_chroma_punched.png")
+        final_img.save(out_path)
+        
+        print(f"[OK] Chroma-Key punch complete: {out_path}\n")
+        return out_path
+
     def _rgb_to_oklab(self, rgb_array):
         """Custom highly optimized RGB -> Oklab numpy conversion. Oklab maps mathematically to human optical perception."""
         # Convert 0-255 to 0.0-1.0
@@ -233,52 +358,61 @@ class VectorPrepEngine:
             print(f"[X] ERROR: VTracer Python binding failed. {e}")
         return None
 
-    def strip_svg_background(self, svg_path):
+    def prepare_for_dtf(self, image_path):
         """
-        Parses the XML/SVG DOM to find and brutally remove the base background layer.
-        This guarantees true transparency for apparel printing regardless of what the AI generated.
+        Path A: The DTF Route (Raster).
+        Takes the background-removed image, upscales it if necessary (placeholder for future AI upscale),
+        and saves it as a true-transparent PNG with explicit 300 DPI metadata required by industrial RIP software.
         """
-        print(f"\n[*] STRIPPING SVG BACKGROUND: Inspecting DOM for print transparency...")
-        import xml.etree.ElementTree as ET
+        print(f"\n[*] INITIATING PATH A: DTF (Direct-to-Film) Processing...")
+        print(f"    -> Loading isolated image: {image_path}")
         
         try:
-            # Register the SVG namespace to prevent 'ns0:' prefixes in the output
-            ET.register_namespace('', "http://www.w3.org/2000/svg")
-            tree = ET.parse(svg_path)
-            root = tree.getroot()
+            # Load the image using PIL
+            img = Image.open(image_path).convert("RGBA")
             
-            # The standard SVG namespace
-            ns = {'svg': 'http://www.w3.org/2000/svg'}
+            # (Future Placeholder: AI Upscaling would happen right here before saving)
+            # e.g., img = custom_upscaler_node(img)
             
-            # VTracer's hierarchical stacking always places the "base canvas" (the background)
-            # as the absolute first <path> element inside the first <g> (group) element.
-            g_elem = root.find('svg:g', ns)
-            if g_elem is not None:
-                paths = g_elem.findall('svg:path', ns)
-                if len(paths) > 0:
-                    base_path = paths[0]
-                    fill_color = base_path.attrib.get('fill', 'Unknown')
-                    
-                    print(f"    -> [VERBOSE] Located foundational base layer in SVG DOM.")
-                    print(f"    -> [VERBOSE] Base Layer Fill Color: {fill_color}")
-                    print(f"    -> [VERBOSE] Executing strict deletion of the base layer to enforce alpha transparency...")
-                    
-                    # Delete the foundational path entirely from the group
-                    g_elem.remove(base_path)
-                    print(f"    -> [VERBOSE] Base layer successfully eradicated from DOM.")
-                else:
-                    print(f"    -> [VERBOSE] No paths found in root group. Skipping.")
-            else:
-                print(f"    -> [VERBOSE] No root group found in SVG. Skipping.")
-                
-            out_path = svg_path.replace(".svg", "_transparent.svg")
-            tree.write(out_path, encoding='utf-8', xml_declaration=True)
-            print(f"[OK] SVG Transparency enforced: {out_path}\n")
+            # Prepare the output path
+            base_name = os.path.splitext(os.path.basename(image_path))[0]
+            out_path = os.path.join(self.output_dir, f"{base_name}_DTF_print_ready.png")
+            
+            # Save the image with exactly 300 DPI metadata
+            print(f"    -> Injecting 300 DPI physical print metadata...")
+            img.save(out_path, format="PNG", dpi=(300, 300))
+            
+            print(f"[OK] DTF Print File Generated: {out_path}\n")
             return out_path
             
         except Exception as e:
-            print(f"[X] ERROR during SVG background stripping: {e}")
-            return svg_path
+            print(f"[X] ERROR during DTF processing: {e}")
+            return None
+
+    def strip_svg_background(self, svg_path):
+        """Topological SVG Optimization using the Scour library to strip invisible complexity/bloat."""
+        print(f"[*] Sanitizing and Optimizing SVG DOM: {svg_path}...")
+        
+        with open(svg_path, 'r', encoding='utf-8') as f:
+            in_string = f.read()
+            
+        import scour.scour as scour_module
+        options = scour_module.sanitizeOptions()
+        options.remove_metadata = True
+        options.remove_descriptive_elements = True
+        options.strip_comments = True
+        options.shorten_ids = True
+        
+        # Scour expects options as an object, but its API relies on sys.argv emulation in parse_args
+        # We will use the standalone API
+        out_string = scour_module.scourString(in_string, options=options)
+        
+        optimized_path = svg_path.replace(".svg", "_optimized.svg")
+        with open(optimized_path, 'w', encoding='utf-8') as f:
+            f.write(out_string)
+            
+        print(f"[OK] Topological Optimization complete: {optimized_path}")
+        return optimized_path
 
     def sanitize_svg(self, svg_path):
         """Topological SVG Optimization using the Scour library to strip invisible complexity/bloat."""
