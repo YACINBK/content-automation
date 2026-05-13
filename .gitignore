@@ -62,3 +62,7 @@ configs/*.json
 .idea/
 *.swp
 *.swo
+
+# Nested Repositories
+vectors/
+
