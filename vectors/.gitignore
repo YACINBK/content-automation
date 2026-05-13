@@ -3,3 +3,9 @@ outputs/
 vtracer.exe
 comfyui.log
 ComfyUI/
+__pycache__/
+*.pyc
+*.jpg
+*.png
+*.webp
+D:AI_Caches*

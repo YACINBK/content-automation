@@ -97,6 +97,39 @@ def process_audio(
         voice = high_pass_filter(voice, cutoff=400)
         voice = low_pass_filter(voice, cutoff=3000)
         voice = voice + 4  # Boost volume to compensate for frequency loss
+    elif voice_filter == "brutalist":
+        # --- PROFILE: BRUTALIST (Tech-Stoicism) ---
+        print(f"   [FX] Applying 'brutalist' profile (Normalization, Compression, Presence EQ, Saturation)...")
+        
+        # 1. High-pass filter at 100Hz to remove sub rumble
+        voice = high_pass_filter(voice, cutoff=100)
+        
+        # 2. Normalize to -1dB
+        from pydub.effects import normalize, compress_dynamic_range
+        voice = normalize(voice, headroom=1.0)
+        
+        # 3. Compression: -20dB threshold, 4:1 ratio (pydub uses default ratios which are close to this)
+        voice = compress_dynamic_range(voice, threshold=-20.0, ratio=4.0, attack=5.0, release=50.0)
+        
+        # 4. Presence EQ: +3dB boost around 4.5kHz (Simulated by slightly boosting highs overall via a second track or a simple high_pass trick, though pydub doesn't have a direct peaking EQ. We use a high pass layer mixed in to simulate presence)
+        presence_layer = high_pass_filter(voice, cutoff=4000) - 3  # Add back highs slightly attenuated
+        voice = voice.overlay(presence_layer)
+        
+        # 5. Saturation: Subtle analog clipping by boosting into hard limiting, then reducing volume
+        voice = voice + 3  # drive
+        # hard clip happens at 0dBFS in pydub naturally if exported, but we'll soft-clip using a custom lambda or just keep it simple.
+        # Simple pydub hard limit
+        def _clip(x):
+            return max(-32768, min(32767, x))
+        # Note: Pydub already hard-clips on export if above 0dB. 
+        # We will normalize back to -1dB to retain the crushed wave.
+        voice = normalize(voice, headroom=1.0)
+        
+        # Note: Reverb is complex in raw pydub without external ffmpeg filters. We will rely on the 0.6s room reverb via ffmpeg if possible, or just skip local reverb and add spatial echo. 
+        # Simulated spatial reverb (6% wet, 0.6s delay)
+        echo = voice - 24 # very quiet (~6% volume)
+        voice = voice.overlay(echo, position=600) # 0.6s delay
+
     elif voice_filter != "none":
         print(f"   [FX] WARNING: Unknown VOICE_FILTER '{voice_filter}'. Bypassing filters.")
     else:

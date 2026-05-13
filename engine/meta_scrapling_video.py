@@ -210,7 +210,7 @@ async def run_automation(prompt: str, output_file: str, headless: bool = False):
             elif rejection_detected and attempt < max_attempts - 1:
                 # --- LAST RESORT: PAGE REFRESH & ORIGINAL PROMPT ---
                 if attempt == max_attempts - 2:
-                    print(f"🚨 [CRITICAL] Last Resort Triggered: Reloading session and retrying ORIGINAL prompt...")
+                    print(f"[!] [CRITICAL] Last Resort Triggered: Reloading session and retrying ORIGINAL prompt...")
                     await page.goto("https://www.meta.ai/", wait_until="domcontentloaded", timeout=30000)
                     await page.wait_for_timeout(5000)
                     

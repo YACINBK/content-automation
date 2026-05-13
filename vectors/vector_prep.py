@@ -6,10 +6,10 @@ import subprocess
 from PIL import Image
 from sklearn.cluster import MiniBatchKMeans
 from skimage.color import rgb2lab, lab2rgb 
-import rembg
 import scour.scour
 
 # We explicitly request the bria-rmbg model as per your instructions
+# NOTE: We are now using backgroundremover but we keep this just in case
 os.environ["U2NET_HOME"] = os.path.join(os.getcwd(), "models", "u2net")
 
 class VectorPrepEngine:
@@ -35,36 +35,30 @@ class VectorPrepEngine:
                 sys.exit(1)
             print("[OK] VTracer downloaded securely.")
 
-    def remove_background(self, input_path, fg_threshold=240, bg_threshold=10, apply_alpha_matting=True):
+    def remove_background(self, input_path, model_name="u2net_human_seg", fg_threshold=240, bg_threshold=10, apply_alpha_matting=True, erode_size=10):
         """
-        Uses RMBG-2.0 / bria-rmbg to strip the background perfectly.
-        Implements Level 1: Threshold Adjustment. 
+        Uses backgroundremover to strip the background perfectly for apparel vectors.
+        Implements alpha matting:
         Lower fg_threshold (e.g. 150) = more forgiving, keeps more of the subject's edges.
+        erode_size allows control over edge softness/sharpness.
         """
-        print(f"[*] Removing background from {input_path}... (Alpha Matting FG Threshold: {fg_threshold})")
+        print(f"[*] Removing background from {input_path}... (Model: {model_name}, Alpha Matting FG: {fg_threshold}, Erode Size: {erode_size})")
+        
+        from backgroundremover.bg import remove
         
         # Load image
         with open(input_path, 'rb') as i:
             input_data = i.read()
-            
-        # We enforce the bria-rmbg model for superior edge detection
-        try:
-            session = rembg.new_session("bria")
-        except Exception:
-            try:
-                session = rembg.new_session("briarmbg1.4")
-            except Exception:
-                session = rembg.new_session("u2net") # Ultimate fallback
                 
-        # LEVEL 1 THRESHOLD PROTOCOL:
         # Applying alpha matting allows us to strictly control the grayscale alpha matte boundary.
-        output_data = rembg.remove(
-            input_data, 
-            session=session, 
+        output_data = remove(
+            input_data,
+            model_name=model_name,
             alpha_matting=apply_alpha_matting,
             alpha_matting_foreground_threshold=fg_threshold,
             alpha_matting_background_threshold=bg_threshold,
-            alpha_matting_erode_size=10
+            alpha_matting_erode_structure_size=erode_size,
+            alpha_matting_base_size=1000
         )
         
         # Save intermediate transparent PNG
@@ -447,6 +441,7 @@ if __name__ == "__main__":
     input_image = sys.argv[1]
     n_colors = int(sys.argv[2]) if len(sys.argv) > 2 else 5
     fg_threshold = int(sys.argv[3]) if len(sys.argv) > 3 else 240
+    erode_size = int(sys.argv[4]) if len(sys.argv) > 4 else 10
     
     if not os.path.exists(input_image):
         print(f"[X] Input image not found: {input_image}")
@@ -455,7 +450,7 @@ if __name__ == "__main__":
     engine = VectorPrepEngine()
     
     # Step 1: Strip Background (With Level 1 Threshold logic)
-    nobg_img = engine.remove_background(input_image, fg_threshold=fg_threshold)
+    nobg_img = engine.remove_background(input_image, fg_threshold=fg_threshold, erode_size=erode_size)
     
     # Step 2: Quantize Colors (Perceptual K-Means)
     quantized_img = engine.quantize_colors_oklab(nobg_img, n_colors=n_colors)

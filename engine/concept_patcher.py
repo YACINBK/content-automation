@@ -80,10 +80,10 @@ def patch():
     concepts = parse_concepts()
 
     if not concepts:
-        print(f"⚠️ No concepts found in {concepts_file}. Make sure to add at least one line of text!")
+        print(f"[!] No concepts found in {concepts_file}. Make sure to add at least one line of text!")
         return
 
-    print(f"🧩 Found {len(concepts)} Concept Blocks. Initializing Puzzle Pieces...")
+    print(f"[*] Found {len(concepts)} Concept Blocks. Initializing Puzzle Pieces...")
     llm = LLMHandler()
 
     for name, title, description in concepts:

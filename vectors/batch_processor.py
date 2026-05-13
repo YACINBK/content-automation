@@ -9,6 +9,7 @@ def main():
     parser.add_argument("--mode", type=str, default="svg", choices=["svg", "dtf", "both"], help="Manufacturing target: 'svg' or 'dtf'")
     parser.add_argument("--colors", type=int, default=8, help="Number of spot colors for SVG mode")
     parser.add_argument("--fg_threshold", type=int, default=240, help="Level 1 BG removal threshold (0-255)")
+    parser.add_argument("--erode_size", type=int, default=10, help="Alpha matting erode size. Higher = softer edges, lower = sharper edges.")
     parser.add_argument("--auto_smart_extract", action="store_true", help="Level 2 AUTO: Use VLM to blindly find the subject")
     parser.add_argument("--level2_extract", type=str, default=None, help="Level 2 MANUAL: GSAM2 Target (e.g. 'woman, flowers')")
     parser.add_argument("--punch_holes", type=str, default=None, help="Punch out trapped spaces via SAM 2")
@@ -48,7 +49,8 @@ def main():
             "--input_image", file_path,
             "--mode", args.mode,
             "--colors", str(args.colors),
-            "--fg_threshold", str(args.fg_threshold)
+            "--fg_threshold", str(args.fg_threshold),
+            "--erode_size", str(args.erode_size)
         ]
 
         if args.auto_smart_extract:

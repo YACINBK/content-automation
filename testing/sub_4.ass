@@ -1,0 +1,30 @@
+﻿[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+WrapStyle: 1
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Brutalist,Courier New,85,&H00FFFFFF,&H000000FF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,6,0,2,80,80,120,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:00.58,Brutalist,,0,0,0,,Clarity\N
+Dialogue: 0,0:00:00.58,0:00:00.86,Brutalist,,0,0,0,,is\N
+Dialogue: 0,0:00:00.86,0:00:01.16,Brutalist,,0,0,0,,not\N
+Dialogue: 0,0:00:01.16,0:00:01.42,Brutalist,,0,0,0,,found\N
+Dialogue: 0,0:00:01.42,0:00:01.64,Brutalist,,0,0,0,,in\N
+Dialogue: 0,0:00:01.64,0:00:01.78,Brutalist,,0,0,0,,the\N
+Dialogue: 0,0:00:01.78,0:00:01.98,Brutalist,,0,0,0,,search\N
+Dialogue: 0,0:00:01.98,0:00:02.46,Brutalist,,0,0,0,,bar.\N
+Dialogue: 0,0:00:03.00,0:00:03.12,Brutalist,,0,0,0,,It\N
+Dialogue: 0,0:00:03.12,0:00:03.36,Brutalist,,0,0,0,,is\N
+Dialogue: 0,0:00:03.36,0:00:03.96,Brutalist,,0,0,0,,architected\N
+Dialogue: 0,0:00:03.96,0:00:04.08,Brutalist,,0,0,0,,in\N
+Dialogue: 0,0:00:04.08,0:00:04.24,Brutalist,,0,0,0,,the\N
+Dialogue: 0,0:00:04.24,0:00:04.50,Brutalist,,0,0,0,,quiet\N
+Dialogue: 0,0:00:04.50,0:00:04.88,Brutalist,,0,0,0,,moments\N
+Dialogue: 0,0:00:04.88,0:00:05.26,Brutalist,,0,0,0,,between\N
+Dialogue: 0,0:00:05.26,0:00:05.44,Brutalist,,0,0,0,,the\N
+Dialogue: 0,0:00:05.44,0:00:05.72,Brutalist,,0,0,0,,data.\N

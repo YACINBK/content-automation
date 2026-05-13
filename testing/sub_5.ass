@@ -1,0 +1,22 @@
+﻿[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+WrapStyle: 1
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Brutalist,Courier New,85,&H00FFFFFF,&H000000FF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,6,0,2,80,80,120,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:00.58,Brutalist,,0,0,0,,Reclaim\N
+Dialogue: 0,0:00:00.58,0:00:00.80,Brutalist,,0,0,0,,your\N
+Dialogue: 0,0:00:00.80,0:00:01.18,Brutalist,,0,0,0,,hardware.\N
+Dialogue: 0,0:00:01.94,0:00:02.10,Brutalist,,0,0,0,,Be\N
+Dialogue: 0,0:00:02.10,0:00:02.30,Brutalist,,0,0,0,,the\N
+Dialogue: 0,0:00:02.30,0:00:02.70,Brutalist,,0,0,0,,architect\N
+Dialogue: 0,0:00:02.70,0:00:03.02,Brutalist,,0,0,0,,of\N
+Dialogue: 0,0:00:03.02,0:00:03.24,Brutalist,,0,0,0,,your\N
+Dialogue: 0,0:00:03.24,0:00:03.38,Brutalist,,0,0,0,,own\N
+Dialogue: 0,0:00:03.38,0:00:03.72,Brutalist,,0,0,0,,silence.\N

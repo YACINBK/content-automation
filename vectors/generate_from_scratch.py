@@ -15,12 +15,14 @@ def main():
     parser.add_argument("--raw_prompt", action="store_true", help="Bypass LLM enhancement and use the exact prompt provided")
     parser.add_argument("--art_style", type=str, default="vector", choices=["vector", "oil"], help="Aesthetic style of the generated graphic")
     parser.add_argument("--colors", type=int, default=8, help="Number of spot colors for screen printing (Max 8 recommended)")
+    parser.add_argument("--cognitive_mode", action="store_true", help="Enable the Semantic/Cognitive Architecture (SAM 2 + Florence 2). Bypasses all bg removal and basic color quantization.")
     parser.add_argument("--fg_threshold", type=int, default=240, help="Level 1 BG removal threshold (0-255). Lower to keep more subject edges.")
+    parser.add_argument("--erode_size", type=int, default=10, help="Alpha matting erode size. Higher = softer edges, lower = sharper edges.")
     parser.add_argument("--auto_smart_extract", action="store_true", help="Level 2 AUTO: Ollama autonomously pilots GSAM2 to extract the main subject.")
     parser.add_argument("--level2_extract", type=str, default=None, help="Level 2 MANUAL: GSAM2 Target. Provide a text string (e.g. 'cat, skateboard') to exclusively extract.")
     parser.add_argument("--seed", type=int, default=None, help="Random seed")
-    parser.add_argument("--llm_provider", type=str, default="deepseek", choices=["deepseek", "ollama"], help="LLM Provider to use")
-    parser.add_argument("--llm_model", type=str, default="DeepSeek-V3-0324", help="Model name for the chosen provider")
+    parser.add_argument("--llm_provider", type=str, default="openrouter", choices=["deepseek", "ollama", "openrouter"], help="LLM Provider to use")
+    parser.add_argument("--llm_model", type=str, default="google/gemini-2.0-flash-001", help="Model name for the chosen provider")
     parser.add_argument("--mode", type=str, default="svg", choices=["svg", "dtf", "both"], help="Manufacturing target: 'svg' for Screen Printing, 'dtf' for Direct-to-Film, 'both' for experimentation.")
     parser.add_argument("--punch_holes", type=str, default=None, help="Double-Layered Extract: Provide a prompt to find trapped negative space")
     parser.add_argument("--invert_punch", action="store_true", help="If DINO selects the subject instead of the hole, use this to KEEP the selection and delete the hole.")
@@ -73,7 +75,7 @@ def main():
                 time.sleep(5)
                 print(f"[OK] VRAM flush assumed complete. Handing baton to ComfyUI.\n")
             else:
-                print(f"\n[OK] DeepSeek requires 0GB VRAM. Bypassing Soft Relay. Handing baton to ComfyUI instantly.\n")
+                print(f"\n[OK] {args.llm_provider.upper()} API requires 0GB local VRAM. Bypassing Soft Relay. Handing baton to ComfyUI instantly.\n")
 
         print(f"[*] FINAL PROMPT: {final_prompt}")
 
@@ -109,6 +111,26 @@ def main():
     sam2_target = args.level2_extract
     llm_dir = LLMDirector(provider=args.llm_provider, model_name=args.llm_model)
 
+    if args.cognitive_mode:
+        print("\n" + "="*50)
+        print("🧠 INITIATING COGNITIVE ARCHITECTURE (Phase 1-4)")
+        print("="*50)
+        
+        from semantic_vectorizer import SemanticVectorizer
+        semantic_engine = SemanticVectorizer()
+        final_svg_path = semantic_engine.execute_cognitive_core(generated_img_path)
+        
+        if final_svg_path:
+            print("\n" + "="*50)
+            print("🏭 COGNITIVE ROUTING LAYER: TARGET METHOD => [SVG]")
+            print(f"[✔] Screen Printing SVG: {final_svg_path}")
+            print("="*50)
+        else:
+            print("[X] ERROR: Cognitive pipeline failed to produce an SVG.")
+        
+        print("\n[✔] COGNITIVE PIPELINE COMPLETE!")
+        return
+
     if args.auto_smart_extract and not args.prompt:
         print("[!] Note: --auto_smart_extract normally uses the prompt for context. Since an existing image was provided, the VLM will analyze it blindly.")
 
@@ -137,13 +159,13 @@ def main():
         extractor = SmartExtractor()
         isolated_img = extractor.extract_subject(generated_img_path, sam2_target)
         
-        # STEP A2: The Edge Refiner (RMBG-2.0)
-        print(f"\n[*] INITIATING HYBRID PROTOCOL Phase 2: Edge Refinement (RMBG-2.0 Alpha Matting)")
-        nobg_img = engine.remove_background(isolated_img, fg_threshold=args.fg_threshold)
+        # STEP A2: The Edge Refiner (RMBG-2.0 Alpha Matting) -> Now using backgroundremover u2net_human_seg
+        print(f"\n[*] INITIATING HYBRID PROTOCOL Phase 2: Edge Refinement (Alpha Matting)")
+        nobg_img = engine.remove_background(isolated_img, fg_threshold=args.fg_threshold, erode_size=args.erode_size)
     else:
         # Step A: Strip Background (Level 1 Smart Protocol via fg_threshold)
-        print(f"\n[*] INITIATING LEVEL 1 PROTOCOL: RMBG-2.0 Alpha Matting")
-        nobg_img = engine.remove_background(generated_img_path, fg_threshold=args.fg_threshold)
+        print(f"\n[*] INITIATING LEVEL 1 PROTOCOL: Alpha Matting (backgroundremover)")
+        nobg_img = engine.remove_background(generated_img_path, fg_threshold=args.fg_threshold, erode_size=args.erode_size)
     
     # NEW STEP A3: Double-Layered Hole Punching (Negative Space)
     if args.punch_holes:

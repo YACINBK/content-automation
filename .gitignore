@@ -2,7 +2,9 @@
 # SECRETS & CREDENTIALS (never commit these)
 # ============================================================
 .env
+*.env
 token.json
+drive_token.json
 client_secrets.json
 
 # ============================================================
@@ -60,11 +62,3 @@ configs/*.json
 .idea/
 *.swp
 *.swo
-.env
-*.env
-token.json
-drive_token.json
-client_secrets.json
-__pycache__/
-.venv/
-.vscode/

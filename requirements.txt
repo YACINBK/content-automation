@@ -1,5 +1,38 @@
+# =============================================================
+# Universal Content Factory — Python Dependencies
+# =============================================================
+# Usage: pip install -r requirements.txt
+# After install, run: playwright install chromium
+# =============================================================
+
+# --- CORE ---
 requests>=2.31.0
 python-dotenv>=1.0.0
-metaai-api
-argparse
-# ffmpeg should be installed on the system path or pointed to via FFMPEG_PATH in .env
+
+# --- AI / LLM ---
+openai>=1.0.0                    # DeepSeek / OpenAI-compatible API calls
+
+# --- BROWSER AUTOMATION (Meta AI Scraper) ---
+playwright>=1.40.0
+
+# --- VIDEO PROCESSING ---
+moviepy>=1.0.3
+
+# --- AUDIO PROCESSING ---
+pydub>=0.25.1
+
+# --- SPEECH-TO-TEXT (Captions) ---
+faster-whisper>=1.0.0
+
+# --- IMAGE PROCESSING ---
+Pillow>=10.0.0
+numpy>=1.24.0
+
+# --- GOOGLE API (YouTube + Drive) ---
+google-api-python-client>=2.100.0
+google-auth>=2.23.0
+google-auth-oauthlib>=1.1.0
+google-auth-httplib2>=0.1.1
+
+# --- STDLIB (included in Python, listed for clarity only) ---
+# argparse, asyncio, base64, datetime, glob, json, logging, os, pathlib, re, shutil, subprocess, sys

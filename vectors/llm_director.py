@@ -4,8 +4,8 @@ import urllib.error
 import os
 from dotenv import load_dotenv
 
-# Load the environment variables from the user's known workspace .env file
-load_dotenv("D:/test/test/.env")
+# Load the environment variables from the nearest .env file
+load_dotenv()
 
 class LLMDirector:
     def __init__(self, provider="deepseek", model_name="DeepSeek-V3-0324"):
@@ -29,8 +29,9 @@ class LLMDirector:
     def check_connection(self):
         """Checks if the chosen provider is available."""
         if self.provider == "deepseek":
-            # For DeepSeek API, we just assume it's reachable. 
             return True
+        elif self.provider == "openrouter":
+            return bool(self.or_api_key)
         elif self.provider == "ollama":
             try:
                 req = urllib.request.Request(f"{self.ollama_host}/api/tags")
@@ -67,6 +68,32 @@ class LLMDirector:
         result = json.loads(response.read().decode('utf-8'))
         return result['choices'][0]['message']['content'].strip()
 
+    def _call_openrouter(self, system_prompt, user_prompt, temperature=0.7):
+        """Calls the OpenRouter API."""
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.or_api_key}"
+        }
+        
+        payload = {
+            "model": self.model_name,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ],
+            "temperature": temperature,
+            "top_p": 0.9
+        }
+        
+        req = urllib.request.Request(
+            self.or_base_url,
+            data=json.dumps(payload).encode('utf-8'),
+            headers=headers
+        )
+        response = urllib.request.urlopen(req)
+        result = json.loads(response.read().decode('utf-8'))
+        return result['choices'][0]['message']['content'].strip()
+
     def _call_ollama(self, system_prompt, user_prompt, temperature=0.7):
         """Calls the local Ollama server."""
         payload = {
@@ -94,21 +121,23 @@ class LLMDirector:
         
         if art_style == "oil":
             style_template = (
-                "[SUBJECT], thick impasto oil painting style, isolated on a solid bright neon green background. "
+                "[SUBJECT], thick impasto oil painting style, isolated on a pure white background. "
                 "Expressive, visible palette knife strokes, high contrast color blocking, flat patches of paint. "
                 "Masterpiece, traditional medium aesthetics. NO gradients, NO blended transitions. "
                 "Clean silhouette, bold structural outlines, no depth of field. "
                 "Even studio lighting, well-lit edges, no backlight. "
-                "The artwork is contained entirely within the center. No background environment, no painted canvas texture."
+                "The artwork is contained entirely within the center. No background environment, no painted canvas texture.\n\n"
+                "[BACKGROUND]\nIsolated on a pure white background."
             )
         else:
             style_template = (
-                "[SUBJECT], isolated on a solid bright neon green background. A vibrant, high-contrast illustration "
+                "[SUBJECT], isolated on a pure white background. A vibrant, high-contrast illustration "
                 "using flat vector-style shading and bold outlines. The artwork is stylized with minimal colors, "
                 "screen-print aesthetics, and clean geometric primitives. "
                 "Clean silhouette, bold structural outlines, no depth of field. "
                 "Even studio lighting, well-lit edges, no backlight. "
-                "Professional graphic design, crisp edges, apparel graphic. No background environment."
+                "Professional graphic design, crisp edges, apparel graphic. No background environment.\n\n"
+                "[BACKGROUND]\nIsolated on a pure white background."
             )
             
         system_prompt = (
@@ -117,13 +146,15 @@ class LLMDirector:
             "RULES: "
             "1. HIERARCHICAL LAYER PROMPTING: Describe the main subject completely, then describe the accessories, and ONLY define the background at the very end. "
             "2. NO NEGATIVE PROMPTS: Focus entirely on describing exactly what you do want. "
-            "3. EXTREME CONTRAST BACKGROUND: Always use the unnatural neon green background to ensure mathematically perfect edge extraction. "
+            "3. EXTREME CONTRAST BACKGROUND: Always use a pure white background. This is a critical mathematical necessity for vector tracing to ignore the negative space. "
             f"4. PRINT-SPECIFIC FORMAT: You MUST format your final output using EXACTLY this template, replacing [SUBJECT] with your hierarchically structured description:\n{style_template}"
         )
 
         try:
             if self.provider == "deepseek":
                 enhanced_prompt = self._call_deepseek(system_prompt, raw_concept, temperature=0.7)
+            elif self.provider == "openrouter":
+                enhanced_prompt = self._call_openrouter(system_prompt, raw_concept, temperature=0.7)
             else:
                 enhanced_prompt = self._call_ollama(system_prompt, raw_concept, temperature=0.7)
             
@@ -154,6 +185,8 @@ class LLMDirector:
         try:
             if self.provider == "deepseek":
                 extracted_subjects = self._call_deepseek(system_prompt, raw_concept, temperature=0.3)
+            elif self.provider == "openrouter":
+                extracted_subjects = self._call_openrouter(system_prompt, raw_concept, temperature=0.3)
             else:
                 extracted_subjects = self._call_ollama(system_prompt, raw_concept, temperature=0.3)
             

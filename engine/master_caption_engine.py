@@ -130,9 +130,10 @@ def process_concept_folder(concept_folder_path, output_drive_path):
     primary_threat = str(toxic_words_list[0]).upper() if toxic_words_list else "SYSTEM"
 
     # 2. Load Whisper and extract word-level timestamps
-    print("Running local Whisper AI for timestamp extraction...")
-    model = whisper.load_model("base")
-    result = model.transcribe(master_video, word_timestamps=True)
+    print("Running local faster-whisper AI for high-speed timestamp extraction...")
+    from faster_whisper import WhisperModel
+    model = WhisperModel("base", device="cpu", compute_type="int8") # Update to cuda/float16 if GPU is available
+    segments, info = model.transcribe(master_video, word_timestamps=True)
 
     # 3. Setup MoviePy Video
     # V6.4: Reverting to 'Pure Blueprint' aesthetic - removing aggressive protocols
@@ -150,19 +151,17 @@ def process_concept_folder(concept_folder_path, output_drive_path):
 
     # 4. Generate the Typewriter Captions
     print("Burning retro-clinical captions onto video...")
-    total_segments = len(result['segments'])
 
-    for i, segment in enumerate(result['segments']):
-
-        for word_info in segment.get('words', []):
-            raw_word = word_info['word'].strip()
+    for segment in segments:
+        for word_info in segment.words:
+            raw_word = word_info.word.strip()
             clean_word = re.sub(r'[^\w\s]', '', raw_word.lower())
 
             # Collect timestamps for the audio FX engine
             all_word_timestamps.append({
                 "word": clean_word,
-                "start": word_info['start'],
-                "end": word_info['end']
+                "start": word_info.start,
+                "end": word_info.end
             })
 
             # 4. COLOR ROUTER: THEME-DRIVEN UNIVERSAL RULES
@@ -173,6 +172,13 @@ def process_concept_folder(concept_folder_path, output_drive_path):
                 color_toxic = '#39FF14' # Neon Green
                 color_cta   = '#FFD700' # Gold
                 color_base  = '#F5F5DC' # Clinical Beige
+            elif VISUAL_PROFILE == "brutalist":
+                fnt = 'Arial-Black' # A heavy sans-serif. Update to Inter/Archivo Black if installed system-wide
+                fz  = 65          # Larger heavy font
+                color_toxic = '#D4AF37' # Soft Gold (Power Word Trigger)
+                color_cta   = '#FFFFFF' 
+                color_base  = '#FFFFFF' # Pure White
+                y_pos = int(h * 0.45)   # Centered y_pos=0.45 as requested
             else:
                 # Default clean profile: Elegant/Modern look
                 fnt = 'Arial-Bold'
@@ -184,19 +190,28 @@ def process_concept_folder(concept_folder_path, output_drive_path):
             if clean_word in toxic_words_list:
                 text_color = color_toxic
                 sw = 2.5 if VISUAL_PROFILE == "chrono-clinical" else 2.0
+                fz_active = int(fz * 1.2) # Active Word Scaling (1.2x) for power words
             else:
                 text_color = color_base
                 sw = 1.5
+                fz_active = int(fz * 1.2) # Apply 1.2x scale to ALL active words as requested for the global caption logic
 
-            start_t = word_info['start']
-            end_t = word_info['end']
+            start_t = word_info.start
+            end_t = word_info.end
 
             # Shadow layer (Universal for readability)
-            shadow = TextClip(raw_word, fontsize=fz, font=fnt, color='black') \
+            shadow = TextClip(raw_word, fontsize=fz_active, font=fnt, color='black') \
                 .set_position(('center', y_pos + 4)).set_start(start_t).set_end(end_t)
 
             # Main text
-            main_text = TextClip(raw_word, fontsize=fz, font=fnt,
+            # Brutalist specific: Add a pseudo-glow using an extra stroke layer if it's a power word
+            if VISUAL_PROFILE == "brutalist" and clean_word in toxic_words_list:
+                glow = TextClip(raw_word, fontsize=fz_active, font=fnt,
+                                color=text_color, stroke_color='#D4AF37', stroke_width=6) \
+                    .set_position(('center', y_pos)).set_start(start_t).set_end(end_t).set_opacity(0.4)
+                subtitle_clips.append(glow)
+
+            main_text = TextClip(raw_word, fontsize=fz_active, font=fnt,
                                  color=text_color, stroke_color='black', stroke_width=sw) \
                 .set_position(('center', y_pos)).set_start(start_t).set_end(end_t)
 

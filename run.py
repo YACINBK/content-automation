@@ -13,6 +13,11 @@ Usage:
 
 import os
 import sys
+
+# Force UTF-8 encoding for Windows console to handle emojis and arrows
+if sys.stdout.encoding != 'utf-8':
+    sys.stdout.reconfigure(encoding='utf-8')
+
 import argparse
 import subprocess
 from pathlib import Path
@@ -142,13 +147,16 @@ UPLOAD_SLOTS=13:00, 18:00, 01:00
 
 def run_stage(script_name, env, label):
     """Executes a pipeline stage script with the injected niche environment."""
-    script_path = ROOT / script_name
+    script_path = ROOT / "engine" / script_name
     if not script_path.exists():
         print(f"❌ ERROR: Script not found: {script_path}")
         sys.exit(1)
 
     print(f"\n▶️  STAGE: {label}")
-    print(f"   Running: python {script_name}\n")
+    print(f"   Running: python engine/{script_name}\n")
+
+    # Add engine directory to PYTHONPATH so imports within engine/ resolve correctly
+    env["PYTHONPATH"] = str(ROOT / "engine") + os.pathsep + env.get("PYTHONPATH", "")
 
     # Run the engine script from the project root so all relative imports work correctly
     result = subprocess.run(
