@@ -2,13 +2,15 @@
 
 Turn a written content idea into a finished short-form video with one command.
 
-Choose a niche. Describe the content. Run the pipeline.
+Name a creative workspace. Give it a content brief. Run the pipeline.
 
 ```bash
 python3 run.py --niche dark_productivity --all
 ```
 
-The engine generates the production plan, writes the narration, creates the visual scenes, assembles the video, burns timed captions, applies the selected audio treatment, and can distribute the finished result to YouTube and cloud storage.
+The engine generates the production plan, writes the narration, creates the visual scenes, assembles the source video and voice track, burns timed captions, layers the selected audio and visual treatment on top, and can distribute the finished result to YouTube and cloud storage.
+
+The command-line requirement is only the niche name. The production requirement is one or more content blocks in that niche's `concepts.txt`; those blocks are the material sent to the LLM. A niche name by itself creates or selects a workspace, but it cannot generate a meaningful video without content.
 
 ## See The Workflow
 
@@ -40,20 +42,22 @@ Captioned MP4
 
 ## A Three-Line Demo
 
-### 1. Choose a niche
+### 1. Name a workspace
 
 ```bash
 python3 run.py --list
 ```
 
 ```text
-Available niches:
+Existing workspaces:
    dark_productivity              (no output yet)
 ```
 
+This is not a fixed menu of products. `--niche` is a workspace key. Use an existing workspace or name a new one; the CLI creates its folders and starter files automatically.
+
 ### 2. Write a concept
 
-Edit `niches/dark_productivity/concepts.txt`:
+For the example workspace, edit `niches/dark_productivity/concepts.txt`:
 
 ```text
 Concept 1: The Spartan's Draft
@@ -62,7 +66,7 @@ Modern Habit: He must write a polite corporate email on a tiny keyboard.
 Psychological Twist: A warrior who fears no army begins to fear passive-aggressive notifications.
 ```
 
-The title becomes the project name. The complete block becomes the creative brief. No JSON production plan needs to be written by hand.
+The title becomes the project name. The complete block becomes the creative brief. No JSON production plan needs to be written by hand. Add more blocks to generate more projects in the same run.
 
 ### 3. Run everything
 
@@ -79,9 +83,9 @@ niches/dark_productivity/
   niche_output_captioned/the_spartans_draft_Captioned.mp4
 ```
 
-## Make Every Niche Feel Different
+## Make Every Workspace Feel Different
 
-The pipeline is reusable, but the creative identity belongs to the niche. Add these files inside the target niche:
+The pipeline is reusable, but the creative identity belongs to the workspace. Add these files inside the target niche:
 
 ```text
 niches/<your_niche>/
@@ -111,11 +115,11 @@ Use precise language, quiet suspense, and evidence-led storytelling.
 , natural documentary light, weathered stone textures, wide archaeological framing, restrained colors, vertical 9:16 composition.
 ```
 
-Change those two files and the same CLI can produce a completely different channel identity without changing the engine code.
+Change those two files and the same CLI can produce a completely different channel identity without changing the engine code. They shape the LLM's narrative and visual instructions; they do not replace the generated video clips or narration.
 
-### Audio Profile
+### Audio Treatment
 
-Set the voice treatment in the niche's `niche.env`:
+The generated Voicebox narration is the base audio layer. Set an optional treatment in the niche's `niche.env`:
 
 ```dotenv
 NICHE_NAME=Dark Productivity
@@ -132,13 +136,17 @@ Available audio modes:
 | `intercom` | Band-pass, boosted radio/intercom character |
 | `brutalist` | High-pass, normalization, compression, and a harder vocal presence |
 
-The Voicebox profile can also be selected per niche:
+The Voicebox profile can also be selected per workspace:
 
 ```dotenv
 VOICEBOX_PROFILE_ID=your-voicebox-profile-id
 ```
 
 For compatibility with older local setups, `DEFAULT_VOICE_ID` is also accepted from `.env`.
+
+### Visual Treatment
+
+The generated Meta AI clips are the base visual layer. The aesthetic file influences how those clips are requested, while the caption renderer adds its finishing overlays, captions, metadata, and closure treatment on top of the assembled video. In other words: the profile shapes and finishes the assets produced by the pipeline; it is not a replacement asset source.
 
 ## What `--all` Does
 
@@ -170,13 +178,12 @@ The factory is intentionally sequential. It uses resume checks and one worker pe
 ## Project Map
 
 ```text
-run.py                    one CLI for niche selection and stage control
+run.py                    one CLI for workspace selection and stage control
 concepts.txt              content briefs for the active project
 niches/<name>/            niche configuration, prompts, assets, and outputs
 configs/                  generated production plans
 llm_handler.py            narrative and visual prompt generation
 factory_floor.py          narration, clips, assembly, and orchestration
-audio_fx_engine.py        audio post-processing profiles
 audio_fx_engine.py        selectable voice processing profiles
 master_caption_engine.py  Whisper timing, captions, overlays, and final mix
 meta_scrapling_video.py   Meta AI browser automation
