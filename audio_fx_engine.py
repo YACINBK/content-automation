@@ -31,7 +31,7 @@ if ffmpeg_dir and os.path.isdir(ffmpeg_dir):
     os.environ["PATH"] += os.pathsep + ffmpeg_dir
 
 from pydub import AudioSegment
-from pydub.effects import high_pass_filter, low_pass_filter
+from pydub.effects import high_pass_filter, low_pass_filter, normalize, compress_dynamic_range
 
 AudioSegment.converter = ffmpeg_path
 
@@ -87,15 +87,26 @@ def process_audio(
     voice = AudioSegment.from_file(input_path)
     duration_ms = len(voice)
 
-    # --- STEP 2: Intercom Filter (bandpass 400Hz–3000Hz + Overdrive) ---
-    print(f"   [FX] Applying intercom bandpass filter (400Hz–3000Hz) and +4dB boost...")
-    voice = high_pass_filter(voice, cutoff=400)
-    voice = low_pass_filter(voice, cutoff=3000)
-    voice = voice + 4  # Boost volume to compensate for frequency loss
+    # --- STEP 2: Niche-selectable voice profile ---
+    voice_filter = os.getenv("VOICE_FILTER", "intercom").strip().lower()
+    if voice_filter == "intercom":
+        print("   [FX] Applying intercom bandpass filter (400Hz–3000Hz) and +4dB boost...")
+        voice = high_pass_filter(voice, cutoff=400)
+        voice = low_pass_filter(voice, cutoff=3000)
+        voice = voice + 4
+    elif voice_filter == "brutalist":
+        print("   [FX] Applying brutalist normalization and compression profile...")
+        voice = high_pass_filter(voice, cutoff=100)
+        voice = normalize(voice, headroom=1.0)
+        voice = compress_dynamic_range(voice, threshold=-20.0, ratio=4.0, attack=5.0, release=50.0)
+    elif voice_filter == "none":
+        print("   [FX] VOICE_FILTER is 'none'; passing voice through unchanged.")
+    else:
+        print(f"   [FX] Unknown VOICE_FILTER '{voice_filter}'; passing voice through unchanged.")
 
     # --- STEP 3: Export ---
     voice.export(output_path, format="wav")
-    print(f"   [FX] Intercom FX applied -> {output_path}")
+    print(f"   [FX] Audio profile applied -> {output_path}")
 
     return output_path
 

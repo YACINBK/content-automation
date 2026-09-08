@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv(override=True)
 
 # Configuration
-API_KEY = os.getenv("OPENROUTER_API_KEY", "").strip('"').strip("'") or "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"
+API_KEY = os.getenv("OPENROUTER_API_KEY", "").strip('"').strip("'")
 BASE_URL = "https://openrouter.ai/api/v1/chat/completions"
 MODEL_NAME = "google/gemini-2.0-flash-001"
 
@@ -67,6 +67,24 @@ class LLMHandler:
         LAW 6: IDENTIFICATION ACCURACY. If the subject is a historical figure (e.g., Cleopatra, Einstein), NEVER just use their name. ALWAYS add 2-3 specific descriptive traits (e.g., 'Cleopatra with gold kohl-lined eyes and a ceremonial uraeus crown').
         """
 
+        self.niche_persona = self._load_niche_fragment(
+            "persona.txt",
+            "You are a professional short-form documentary creator."
+        )
+        self.niche_aesthetic = self._load_niche_fragment(
+            "aesthetic.txt",
+            ", cinematic high-quality video, vertical 9:16 aspect ratio."
+        )
+
+    def _load_niche_fragment(self, filename, default=""):
+        prompts_dir = os.getenv("NICHE_PROMPTS_DIR", "")
+        if prompts_dir:
+            path = os.path.join(prompts_dir, filename)
+            if os.path.exists(path):
+                with open(path, "r", encoding="utf-8") as file:
+                    return file.read().strip()
+        return default
+
     def _call_llm(self, messages):
         payload = {
             "model": MODEL_NAME,
@@ -96,7 +114,7 @@ class LLMHandler:
         Takes a raw concept string and generates the complete 5-scene JSON
         using the V4 Anomaly Log Persona.
         """
-        system_prompt = self.master_rules
+        system_prompt = f"{self.niche_persona}\n\n{self.master_rules}"
         user_prompt = f"Generate a script based on this concept: {concept_description}"
 
         messages = [
@@ -129,6 +147,10 @@ class LLMHandler:
         system_prompt = f"""You are an expert prompt engineer for Meta AI Video. Your job is to transform a visual concept into a prompt that Meta AI will accept 100% of the time.
 
         {self.visual_prompt_rules}
+
+        The selected niche aesthetic is:
+        {self.niche_aesthetic}
+        End every generated visual prompt with that aesthetic direction.
         """
         messages = [
             {"role": "system", "content": system_prompt},

@@ -86,7 +86,13 @@ async def audio_worker(worker_id):
                 clean_text = text.replace('[', '').replace(']', '')
                 payload = {
                     "text": clean_text,
-                    "profile_id": cfg.get("profile_id", "66cee046-6d00-4055-9cfe-4fe9ca8637c9")
+                    "profile_id": os.getenv(
+                        "VOICEBOX_PROFILE_ID",
+                        os.getenv(
+                            "DEFAULT_VOICE_ID",
+                        cfg.get("profile_id", "66cee046-6d00-4055-9cfe-4fe9ca8637c9")
+                        )
+                    )
                 }
                 
                 # V6.5.1: Robust Retry Loop for API Stability

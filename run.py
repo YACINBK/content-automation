@@ -48,24 +48,25 @@ def build_niche_env(niche_name):
     niche_dir = NICHES_DIR / niche_name
 
     if not niche_dir.exists():
-        print(f"❌ ERROR: Niche directory not found: {niche_dir}")
-        print(f"   Create it with: mkdir niches\\{niche_name}")
-        sys.exit(1)
+        print(f"✨ Initializing niche: {niche_name}")
+        niche_dir.mkdir(parents=True, exist_ok=True)
 
     concepts_file = niche_dir / "concepts.txt"
     if not concepts_file.exists():
-        print(f"❌ ERROR: concepts.txt not found in {niche_dir}")
-        print(f"   Create your concepts file at: {concepts_file}")
-        sys.exit(1)
+        concepts_file.write_text(
+            f"# {niche_name} concepts\n# Add blocks beginning with 'Concept 1: Title'\n",
+            encoding="utf-8"
+        )
 
     configs_dir   = niche_dir / "configs"
     workspace_dir = niche_dir / "niche_output"
     captioned_dir = niche_dir / "niche_output_captioned"
+    assets_dir    = niche_dir / "assets"
+    prompts_dir   = niche_dir / "prompts"
 
     # Ensure niche directories exist
-    configs_dir.mkdir(exist_ok=True)
-    workspace_dir.mkdir(exist_ok=True)
-    captioned_dir.mkdir(exist_ok=True)
+    for directory in (configs_dir, workspace_dir, captioned_dir, assets_dir, prompts_dir):
+        directory.mkdir(parents=True, exist_ok=True)
 
     # Load per-niche branding profile
     niche_env_file = niche_dir / "niche.env"
@@ -75,6 +76,34 @@ def build_niche_env(niche_name):
     else:
         print(f"⚠️  Warning: No niche.env found at {niche_env_file}. Using defaults.")
 
+    if not niche_env_file.exists():
+        niche_env_file.write_text(
+            "\n".join([
+                f"NICHE_NAME={niche_name.replace('_', ' ').title()}",
+                f"GDRIVE_FOLDER={niche_name}",
+                f"ONEDRIVE_SUBFOLDER={niche_name}",
+                "VISUAL_PROFILE=none",
+                "VOICE_FILTER=none",
+                "",
+            ]),
+            encoding="utf-8"
+        )
+        niche_profile = dotenv_values(str(niche_env_file))
+
+    persona_file = prompts_dir / "persona.txt"
+    if not persona_file.exists():
+        persona_file.write_text(
+            "You are a professional short-form documentary creator.\n",
+            encoding="utf-8"
+        )
+
+    aesthetic_file = prompts_dir / "aesthetic.txt"
+    if not aesthetic_file.exists():
+        aesthetic_file.write_text(
+            ", cinematic high-quality video, vertical 9:16 aspect ratio.",
+            encoding="utf-8"
+        )
+
     # Start from current environment (inherits global .env already loaded by parent, API keys, etc.)
     env = os.environ.copy()
 
@@ -83,6 +112,17 @@ def build_niche_env(niche_name):
     env["NICHE_CONFIGS_DIR"]   = str(configs_dir.resolve())
     env["NICHE_WORKSPACE_DIR"] = str(workspace_dir.resolve())
     env["NICHE_CAPTIONED_DIR"] = str(captioned_dir.resolve())
+    env["NICHE_ASSETS_DIR"]    = str(assets_dir.resolve())
+    env["NICHE_PROMPTS_DIR"]   = str(prompts_dir.resolve())
+    env["VISUAL_PROFILE"]      = niche_profile.get("VISUAL_PROFILE", "none")
+    env["VOICE_FILTER"]        = niche_profile.get("VOICE_FILTER", "none")
+    voice_profile_id = (
+        niche_profile.get("VOICEBOX_PROFILE_ID")
+        or env.get("VOICEBOX_PROFILE_ID")
+        or env.get("DEFAULT_VOICE_ID")
+    )
+    if voice_profile_id:
+        env["VOICEBOX_PROFILE_ID"] = voice_profile_id
 
     # --- OneDrive Resolution ---
     # ONEDRIVE_BASE: the root OneDrive root drive path (set in global .env or defaults to institution drive)
