@@ -1,94 +1,199 @@
-# V6.5 Chrono-Clinical Content Engine
+# Content Automation Engine
 
-A niche-driven short-form video production pipeline. The v6.5 workflow turns written concepts into five-scene video plans, generates Meta AI clips, creates local Voicebox narration, assembles and captions the result, and optionally uploads and archives completed videos.
+Turn a written content idea into a finished short-form video with one command.
 
-This repository is an automation orchestrator. It depends on external services and local tools: an OpenRouter-compatible LLM, Meta AI browser access, Voicebox, FFmpeg, Whisper, MoviePy, and Google OAuth for distribution.
-
-## The Main User Experience
-
-The intended workflow is deliberately small:
-
-1. Choose a niche with the CLI.
-2. Add one or more content descriptions to that niche's `concepts.txt`.
-3. Run the complete pipeline.
+Choose a niche. Describe the content. Run the pipeline.
 
 ```bash
 python3 run.py --niche dark_productivity --all
 ```
 
-The content description is file-based in v6.5. There is no direct `--description` command-line argument. The CLI selects the niche workspace; the concept file supplies the production ideas.
+The engine generates the production plan, writes the narration, creates the visual scenes, assembles the video, burns timed captions, applies the selected audio treatment, and can distribute the finished result to YouTube and cloud storage.
 
-## Pipeline
+## See The Workflow
 
-`--all` runs three stages in order:
+```text
+concepts.txt
+    |
+    v
+LLM production plan
+    |
+    +--> five narrative scenes
+    +--> five visual prompts
+    +--> metadata and sound cues
+    |
+    v
+Meta AI clips + local Voicebox narration
+    |
+    v
+FFmpeg assembly + audio treatment
+    |
+    v
+Whisper timestamps + styled captions
+    |
+    v
+Captioned MP4
+    |
+    +--> optional YouTube upload
+    +--> optional OneDrive / Google Drive archive
+```
 
-1. **Patch** (`tmp_v65_patcher_fixed.py`): parses concept blocks and asks the LLM for one JSON production plan per concept.
-2. **Factory** (`factory_floor.py`): generates narration through Voicebox, requests visual clips through Meta AI, applies audio processing, muxes each scene with FFmpeg, concatenates the master reel, and sends it to the caption engine.
-3. **Upload** (`upload_scheduler.py`): uploads completed captioned videos to YouTube, syncs them to OneDrive, records an upload log, and cleans intermediate production files.
+## A Three-Line Demo
 
-Stages are also available independently:
+### 1. Choose a niche
 
 ```bash
 python3 run.py --list
+```
+
+```text
+Available niches:
+   dark_productivity              (no output yet)
+```
+
+### 2. Write a concept
+
+Edit `niches/dark_productivity/concepts.txt`:
+
+```text
+Concept 1: The Spartan's Draft
+Subject: A heavily-armored Spartan Warlord.
+Modern Habit: He must write a polite corporate email on a tiny keyboard.
+Psychological Twist: A warrior who fears no army begins to fear passive-aggressive notifications.
+```
+
+The title becomes the project name. The complete block becomes the creative brief. No JSON production plan needs to be written by hand.
+
+### 3. Run everything
+
+```bash
+python3 run.py --niche dark_productivity --all
+```
+
+The result is produced under the selected niche:
+
+```text
+niches/dark_productivity/
+  configs/the_spartans_draft.json
+  niche_output/production_the_spartans_draft/
+  niche_output_captioned/the_spartans_draft_Captioned.mp4
+```
+
+## Make Every Niche Feel Different
+
+The pipeline is reusable, but the creative identity belongs to the niche. Add these files inside the target niche:
+
+```text
+niches/<your_niche>/
+  concepts.txt
+  niche.env
+  prompts/
+    persona.txt
+    aesthetic.txt
+  assets/
+    ...optional audio assets...
+```
+
+### Narrative Profile
+
+`prompts/persona.txt` defines who the content engine sounds like.
+
+```text
+You are a calm museum historian documenting lost civilizations.
+Use precise language, quiet suspense, and evidence-led storytelling.
+```
+
+### Visual Profile
+
+`prompts/aesthetic.txt` defines the visual direction appended to generated scene prompts.
+
+```text
+, natural documentary light, weathered stone textures, wide archaeological framing, restrained colors, vertical 9:16 composition.
+```
+
+Change those two files and the same CLI can produce a completely different channel identity without changing the engine code.
+
+### Audio Profile
+
+Set the voice treatment in the niche's `niche.env`:
+
+```dotenv
+NICHE_NAME=Dark Productivity
+GDRIVE_FOLDER=DarkProductivity
+ONEDRIVE_SUBFOLDER=DarkProductivity
+VOICE_FILTER=brutalist
+```
+
+Available audio modes:
+
+| Mode | Result |
+| --- | --- |
+| `none` | Voice pass-through |
+| `intercom` | Band-pass, boosted radio/intercom character |
+| `brutalist` | High-pass, normalization, compression, and a harder vocal presence |
+
+The Voicebox profile can also be selected per niche:
+
+```dotenv
+VOICEBOX_PROFILE_ID=your-voicebox-profile-id
+```
+
+For compatibility with older local setups, `DEFAULT_VOICE_ID` is also accepted from `.env`.
+
+## What `--all` Does
+
+| Stage | What happens | Main output |
+| --- | --- | --- |
+| Patch | Turns concept blocks into structured five-scene JSON plans | `configs/<slug>.json` |
+| Factory | Generates narration and clips, muxes scenes, creates the master reel, and renders captions | `niche_output_captioned/<slug>_Captioned.mp4` |
+| Upload | Uploads, schedules, archives, logs, and cleans completed work | YouTube + cloud archives |
+
+Run a single stage when you want control:
+
+```bash
 python3 run.py --niche dark_productivity --patch
 python3 run.py --niche dark_productivity --factory
 python3 run.py --niche dark_productivity --upload
 ```
 
-The factory uses queue-based workers but sets every worker limit to one. The effective design is sequential, prioritizing Meta AI and Voicebox reliability over throughput. Existing audio, clips, synced scenes, configs, and captioned outputs are reused where the stage supports resume behavior.
+The factory is intentionally sequential. It uses resume checks and one worker per stage to favor reliable browser automation, local speech synthesis, and media assembly over fragile parallel throughput.
 
-## Repository Layout
+## Why This Is More Than A Script
 
-```text
-run.py                    niche CLI and environment injection
-concepts.txt              active concept descriptions
-configs/                  generated JSON plans and example schema
-niches/<name>/niche.env   niche branding and cloud destination values
-llm_handler.py            LLM prompts, JSON generation, and Meta negotiation
-factory_floor.py          narration, visual generation, muxing, and orchestration
-audio_fx_engine.py        Voicebox audio post-processing
-master_caption_engine.py  Whisper timestamps, captions, overlays, and final mix
-meta_scrapling_video.py   Playwright Meta AI automation
-upload_scheduler.py       YouTube, OneDrive, and upload-ledger workflow
-docs/                     integration and handoff documentation
-```
+- **Brief in, production plan out**: the LLM converts natural-language ideas into a repeatable scene schema.
+- **Niche-aware generation**: persona, visual direction, voice profile, and audio treatment travel with the niche.
+- **Automatic scene production**: each concept becomes paired narration and visual scenes.
+- **Production-grade finishing**: FFmpeg assembly, word-level Whisper timing, styled captions, overlays, and audio processing happen in sequence.
+- **Restart-friendly workflow**: existing configs, clips, audio, synced scenes, and completed videos are reused where possible.
+- **Distribution built in**: completed videos can be uploaded, scheduled, archived, logged, and cleaned up without manually moving files between stages.
 
-## Niche and Content Contract
-
-The v6.5 CLI expects the selected niche to already exist:
+## Project Map
 
 ```text
-niches/
-  dark_productivity/
-    niche.env
-    concepts.txt
-    configs/
-    niche_output/
-    niche_output_captioned/
+run.py                    one CLI for niche selection and stage control
+concepts.txt              content briefs for the active project
+niches/<name>/            niche configuration, prompts, assets, and outputs
+configs/                  generated production plans
+llm_handler.py            narrative and visual prompt generation
+factory_floor.py          narration, clips, assembly, and orchestration
+audio_fx_engine.py        audio post-processing profiles
+audio_fx_engine.py        selectable voice processing profiles
+master_caption_engine.py  Whisper timing, captions, overlays, and final mix
+meta_scrapling_video.py   Meta AI browser automation
+upload_scheduler.py       YouTube and cloud distribution
 ```
 
-The v6.5 patcher accepts concept blocks beginning with `Concept N: Title`, followed by a description. It uses the title to create a safe config filename and sends the full block to the LLM. Populated configs containing `image_prompts` are skipped so completed plans are not overwritten.
+## Setup
 
-`niche.env` currently carries values such as `NICHE_NAME`, `GDRIVE_FOLDER`, and `ONEDRIVE_SUBFOLDER`. Global secrets and service paths belong in `.env`, which must never be committed.
-
-## Visual and Audio Direction
-
-V6.5 has a built-in Chrono-Clinical presentation: schematic visual prompts, retro-clinical captions, dossier metadata, CRT/film overlays, and layered audio effects. The renderer treats individual overlay and sound files as optional at runtime; missing overlay assets are skipped with a warning, while required audio assets must be available for the complete finishing pass.
-
-The v6.5 configuration layer now supports optional niche customization. Add `prompts/persona.txt` to change the narrative identity, `prompts/aesthetic.txt` to change the visual direction sent to Meta AI, and set `VOICE_FILTER` in `niche.env` to `intercom`, `brutalist`, or `none` for audio treatment. Optional runtime assets can be placed in the niche `assets/` directory and are passed to the finishing stage.
-
-## Prerequisites
+Requirements:
 
 - Python 3.9+
-- FFmpeg on `PATH` or configured with `FFMPEG_PATH`
-- Python packages from `requirements.txt`
-- A valid `OPENROUTER_API_KEY`
-- Meta AI session cookies in `.env`
-- A local Voicebox server, normally at `http://127.0.0.1:17493`
-- Google OAuth client credentials for `--upload`
-- A reachable OneDrive destination for upload archiving
-
-Install the Python dependencies and keep credentials local:
+- FFmpeg available on `PATH`, or configured with `FFMPEG_PATH`
+- An OpenRouter API key
+- Meta AI session cookies
+- A local Voicebox server
+- Google OAuth credentials for upload and Drive features
+- A reachable OneDrive destination when archiving is enabled
 
 ```bash
 python3 -m venv .venv
@@ -97,11 +202,11 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-See [docs/voicebox_setup.md](docs/voicebox_setup.md) for the local TTS service setup.
+Keep `.env`, OAuth files, tokens, and generated media out of Git. Voicebox setup is documented in [docs/voicebox_setup.md](docs/voicebox_setup.md). The deeper operational handoff is in [docs/PROJECT_HANDOFF.md](docs/PROJECT_HANDOFF.md).
 
-## Current Scope
+## Current Boundary
 
-This is the v6.5 production pipeline source and its operational configuration, not a hosted service. The repository does not include API credentials, Meta AI access, Voicebox itself, generated media, or a deployment environment.
+This repository automates the production workflow; it does not include the external Meta AI account, Voicebox service, API credentials, generated media, or cloud deployment. Those integrations are intentionally configured at runtime.
 
 ## License
 
